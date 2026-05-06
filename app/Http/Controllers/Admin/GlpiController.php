@@ -11,9 +11,6 @@ class GlpiController extends Controller
 {
     public function __construct(protected GlpiService $glpi) {}
 
-    /**
-     * Inicia sesión en GLPI manualmente.
-     */
     public function sessionInit()
     {
         try {
@@ -25,9 +22,6 @@ class GlpiController extends Controller
         }
     }
 
-    /**
-     * Cierra la sesión activa en GLPI.
-     */
     public function sessionKill()
     {
         try {
@@ -40,10 +34,6 @@ class GlpiController extends Controller
         }
     }
 
-    /**
-     * Dashboard principal del módulo GLPI.
-     * Muestra resumen de todos los tipos de activos.
-     */
     public function index()
     {
         $assetTypes = config('glpi.asset_types');
@@ -51,37 +41,95 @@ class GlpiController extends Controller
 
         foreach ($assetTypes as $type => $label) {
             try {
-                $result = $this->glpi->getAllItems($type, ['range' => '0-0']);
-                $summary[$type] = [
-                    'label' => $label,
-                    'total' => $result['total'],
-                ];
+                if ($type === 'NetworkEquipment') {
+                    // ── 1. Traer todos los tipos de equipo de red ──────────────
+                    $typesResult = $this->glpi->getAllItems('NetworkEquipmentType', [
+                        'range' => '0-199',
+                        'sort'  => 'name',
+                        'order' => 'ASC',
+                    ]);
+
+                    $grouped = [];
+                    foreach ($typesResult['items'] as $equipType) {
+                        try {
+                            // ── 2. Contar equipos de cada tipo ─────────────────
+                            $count = $this->glpi->searchItems('NetworkEquipment', [
+                                ['field' => 23, 'searchtype' => 'equals', 'value' => $equipType['id']],
+                            ], ['range' => '0-0']);
+
+                            $total = $count['total'] ?? 0;
+
+                            if ($total > 0) {
+                                // ── 3. Contar cuántos están en depósito ────────
+                                $deposito = $this->glpi->searchItems('NetworkEquipment', [
+                                    ['field' => 23, 'searchtype' => 'equals',   'value' => $equipType['id']],
+                                    ['field' => 31, 'searchtype' => 'contains', 'value' => 'dep',
+                                     'link'  => 'AND'],
+                                ], ['range' => '0-0']);
+
+                                $grouped[] = [
+                                    'id'          => $equipType['id'],
+                                    'nombre'      => $equipType['name'],
+                                    'total'       => $total,
+                                    'en_deposito' => $deposito['total'] ?? 0,
+                                ];
+                            }
+                        } catch (Exception) {
+                            // Si falla un tipo, continuar con el siguiente
+                        }
+                    }
+
+                    // Total general de NetworkEquipment
+                    $totalResult = $this->glpi->getAllItems($type, ['range' => '0-0']);
+
+                    $summary[$type] = [
+                        'label'   => $label,
+                        'total'   => $totalResult['total'],
+                        'grouped' => $grouped,
+                    ];
+
+                } else {
+                    $result = $this->glpi->getAllItems($type, ['range' => '0-0']);
+                    $summary[$type] = [
+                        'label'   => $label,
+                        'total'   => $result['total'],
+                        'grouped' => null,
+                    ];
+                }
             } catch (Exception) {
-                $summary[$type] = ['label' => $label, 'total' => 0];
+                $summary[$type] = ['label' => $label, 'total' => 0, 'grouped' => null];
             }
         }
 
         return view('admin.glpi.index', compact('summary'));
     }
 
-    /**
-     * Lista de items de un tipo específico con paginación y búsqueda.
-     */
     public function items(Request $request, string $itemtype)
     {
         $assetTypes = config('glpi.asset_types');
         abort_unless(array_key_exists($itemtype, $assetTypes), 404);
 
         $search  = $request->get('search', '');
+        $typeId  = $request->get('type_id');
         $page    = max(1, (int) $request->get('page', 1));
-        $perPage = 20;
+        $perPage = 4064;
         $start   = ($page - 1) * $perPage;
 
         try {
+            $criteria = [];
+
+            if ($typeId) {
+                $criteria[] = ['field' => 23, 'searchtype' => 'equals', 'value' => $typeId];
+            }
+
             if ($search) {
-                $result = $this->glpi->searchItems($itemtype, [
-                    ['field' => 1, 'searchtype' => 'contains', 'value' => $search],
-                ], ['range' => "{$start}-" . ($start + $perPage - 1)]);
+                $criteria[] = ['field' => 1, 'searchtype' => 'contains', 'value' => $search, 'link' => 'AND'];
+            }
+
+            if (!empty($criteria)) {
+                $result = $this->glpi->searchItems($itemtype, $criteria, [
+                    'range' => "{$start}-" . ($start + $perPage - 1),
+                ]);
             } else {
                 $result = $this->glpi->getAllItems($itemtype, [
                     'range' => "{$start}-" . ($start + $perPage - 1),
@@ -105,9 +153,6 @@ class GlpiController extends Controller
         ));
     }
 
-    /**
-     * Detalle de un activo específico.
-     */
     public function show(string $itemtype, int $id)
     {
         $assetTypes = config('glpi.asset_types');
@@ -123,9 +168,6 @@ class GlpiController extends Controller
         return view('admin.glpi.show', compact('item', 'itemtype', 'label'));
     }
 
-    /**
-     * Formulario para crear un nuevo activo.
-     */
     public function create(string $itemtype)
     {
         $assetTypes = config('glpi.asset_types');
@@ -142,9 +184,6 @@ class GlpiController extends Controller
         return view('admin.glpi.create', compact('itemtype', 'label', 'entities'));
     }
 
-    /**
-     * Guarda un nuevo activo en GLPI.
-     */
     public function store(Request $request, string $itemtype)
     {
         $assetTypes = config('glpi.asset_types');
@@ -169,9 +208,6 @@ class GlpiController extends Controller
         }
     }
 
-    /**
-     * Formulario de edición.
-     */
     public function edit(string $itemtype, int $id)
     {
         $assetTypes = config('glpi.asset_types');
@@ -188,9 +224,6 @@ class GlpiController extends Controller
         return view('admin.glpi.edit', compact('item', 'itemtype', 'label', 'entities'));
     }
 
-    /**
-     * Actualiza un activo en GLPI.
-     */
     public function update(Request $request, string $itemtype, int $id)
     {
         $assetTypes = config('glpi.asset_types');

@@ -37,12 +37,9 @@ class GlpiService
 
         $response = Http::withoutVerifying()
             ->withHeaders([
-                'App-Token'    => $this->appToken,
-                'Content-Type' => 'application/json',
-            ])->withBasicAuth(
-                config('glpi.user'),
-                config('glpi.password')
-            )->get("{$this->baseUrl}/initSession");
+                'Authorization' => 'user_token ' . $this->userToken,
+                'App-Token'     => $this->appToken,
+            ])->get("{$this->baseUrl}/initSession");
 
         if ($response->failed()) {
             throw new Exception('GLPI: No se pudo iniciar sesión. ' . $response->body());
