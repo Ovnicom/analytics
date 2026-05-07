@@ -43,6 +43,17 @@ class MspReport extends Model
         $q = static::forCustomer($customer);
         if ($periodo) $q->forPeriodo($periodo);
 
+        // Solo Incidente y Solicitud, excluyendo ticket_type con cancelación/instalación/inspección
+        $q->whereIn('tipo_ticket', ['Incidente', 'Solicitud'])
+        ->where(function ($query) {
+            $query->whereNull('ticket_type')
+                    ->orWhere(function ($q2) {
+                        $q2->whereRaw("LOWER(ticket_type) NOT LIKE '%cancelaci%'")
+                        ->whereRaw("LOWER(ticket_type) NOT LIKE '%instalaci%'")
+                        ->whereRaw("LOWER(ticket_type) NOT LIKE '%inspecci%'");
+                    });
+        });
+
         $tickets = $q->orderByRaw("FIELD(tipo_ticket, 'Incidente', 'Solicitud')")->get();
 
         $incidentes  = $tickets->where('tipo_ticket', 'Incidente');
@@ -64,7 +75,6 @@ class MspReport extends Model
             'por_ubicacion_incidentes' => $incidentes->groupBy(fn($t) => $normalize($t->location_name))
                 ->map(fn($g) => $g->count())->sortDesc(),
 
-            // 🎯 FIX principal: agrupa por valor normalizado para unir mayús/minús
             'por_clasificacion' => $incidentes->groupBy(fn($t) => $normalize($t->clasificacion_eventos))
                 ->map(fn($g) => $g->count()),
 

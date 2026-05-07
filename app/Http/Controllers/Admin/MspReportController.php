@@ -23,9 +23,20 @@ class MspReportController extends Controller
     // VENTANA 1 — Subir Excel
     // =========================================================================
 
-    public function index()
+    public function index(Request $request)
     {
-        $sp             = app(SharePointService::class);
+        $sp = app(SharePointService::class);
+
+        // AJAX → lista de archivos
+        if ($request->ajax() || $request->wantsJson()) {
+            try {
+                return response()->json(['files' => $sp->listExcelFiles()]);
+            } catch (\Throwable $e) {
+                return response()->json(['error' => $e->getMessage()]);
+            }
+        }
+
+        // Página normal
         $hasCredentials = $sp->hasCredentials();
         $missingEnvVars = $hasCredentials ? [] : $sp->missingCredentials();
         $batches        = MspUploadBatch::orderByDesc('created_at')->take(10)->get();
@@ -33,32 +44,6 @@ class MspReportController extends Controller
         return view('admin.reports.msp.index', compact(
             'hasCredentials', 'missingEnvVars', 'batches'
         ));
-    }
-
-    public function upload(Request $request)
-    {
-        $request->validate([
-            'excel_file' => 'required|file|mimes:xlsx,xls',
-            'periodo'    => 'required|string|max:50',
-        ]);
-
-        $file    = $request->file('excel_file');
-        $periodo = trim($request->input('periodo'));
-
-        $batch = MspUploadBatch::create([
-            'filename'        => $file->getClientOriginalName(),
-            'periodo'         => $periodo,
-            'total_registros' => 0,
-            'clientes_unicos' => 0,
-        ]);
-
-        Excel::import(new MspReportsImport($periodo, $batch->id), $file);
-
-        $total  = MspReport::where('batch_id', $batch->id)->count();
-        $unicos = MspReport::where('batch_id', $batch->id)->distinct('customer_name')->count();
-        $batch->update(['total_registros' => $total, 'clientes_unicos' => $unicos]);
-
-        return back()->with('success', "✅ Importados {$total} registros de {$unicos} clientes para el período {$periodo}.");
     }
 
     // =========================================================================
@@ -437,28 +422,6 @@ Para cualquier otra consulta responde en español de forma clara y concisa.";
     // SharePoint
     // =========================================================================
 
-    public function sharepointIndex(Request $request)
-    {
-        $sp    = app(SharePointService::class);
-        $files = [];
-        $error = null;
-
-        try {
-            $files = $sp->listExcelFiles();
-        } catch (\Throwable $e) {
-            $error = $e->getMessage();
-        }
-
-        if ($request->ajax() || $request->wantsJson()) {
-            return $error
-                ? response()->json(['error' => $error])
-                : response()->json(['files' => $files]);
-        }
-
-        $periodos = MspReport::uniquePeriodos();
-        return view('admin.reports.msp.sharepoint', compact('files', 'error', 'periodos'));
-    }
-
     public function sharepointImport(Request $request)
     {
         $request->validate([
@@ -478,6 +441,7 @@ Para cualquier otra consulta responde en español de forma clara y concisa.";
 
             $batch = MspUploadBatch::create([
                 'filename'        => $filename . ' (SharePoint)',
+                'sharepoint_item_id' => $itemId,
                 'periodo'         => $periodo,
                 'total_registros' => 0,
                 'clientes_unicos' => 0,
@@ -657,5 +621,45 @@ Para cualquier otra consulta responde en español de forma clara y concisa.";
         $base64 = base64_encode(file_get_contents($path));
 
         return "data:{$mime};base64,{$base64}";
+    }
+    
+    public function refreshBatch(Request $request, MspUploadBatch $batch)
+    {
+        // Validar que no hayan pasado más de 7 días
+        if ($batch->created_at->diffInDays(now()) > 7) {
+            return back()->with('error', '❌ Solo se puede actualizar dentro de los 7 días posteriores a la importación.');
+        }
+
+        if (!$batch->sharepoint_item_id) {
+            return back()->with('error', '❌ Este batch no tiene referencia a SharePoint.');
+        }
+
+        $sp = app(SharePointService::class);
+
+        try {
+            $tempPath = $sp->downloadFileById($batch->sharepoint_item_id, $batch->filename);
+
+            // Eliminar registros anteriores del batch
+            MspReport::where('batch_id', $batch->id)->delete();
+
+            // Re-importar
+            Excel::import(new MspReportsImport($batch->periodo, $batch->id), $tempPath);
+
+            @unlink($tempPath);
+
+            $total  = MspReport::where('batch_id', $batch->id)->count();
+            $unicos = MspReport::where('batch_id', $batch->id)->distinct('customer_name')->count();
+
+            $batch->update([
+                'total_registros' => $total,
+                'clientes_unicos' => $unicos,
+            ]);
+
+            return back()->with('success', "✅ Actualizado: {$total} registros de {$unicos} clientes para {$batch->periodo}.");
+
+        } catch (\Throwable $e) {
+            Log::error('Error refrescando batch: ' . $e->getMessage());
+            return back()->with('error', '❌ Error: ' . $e->getMessage());
+        }
     }
 }

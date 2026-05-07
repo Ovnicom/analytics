@@ -89,6 +89,20 @@ class MspReportsImport implements ToModel, WithHeadingRow, WithChunkReading, Ski
             ? ucfirst($fechaCierre->translatedFormat('F Y'))
             : $this->periodo;
 
+        // ─── Filtro de tipos válidos ───────────────────────────────────────────────
+        // Solo Incidente y Solicitud pura (excluir Cancelación, Instalación, Inspección)
+        $tipoTicketNorm = mb_strtolower(trim($tipoTicket ?? ''));
+        $tipoTicketNorm2 = mb_strtolower(trim($ticketType ?? ''));
+
+        $tiposExcluidos = ['cancelación', 'cancelacion', 'instalación', 'instalacion', 'inspección', 'inspeccion'];
+
+        $esValido = in_array($tipoTicketNorm, ['incidente', 'solicitud'])
+            && !collect($tiposExcluidos)->contains(fn($ex) => str_contains($tipoTicketNorm2, $ex));
+
+        if (!$esValido) {
+            return null; // ← salta la fila
+        }
+
         // ─── Crear cliente si no existe ────────────────────────────────────────
         if ($customerName) {
             \App\Models\MspClient::firstOrCreate(

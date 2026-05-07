@@ -7,6 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class MspUploadBatch extends Model
 {
     protected $fillable = [
-        'filename', 'periodo', 'total_registros', 'clientes_unicos',
+        'filename', 'periodo', 'total_registros', 'clientes_unicos', 'sharepoint_item_id',
     ];
 }

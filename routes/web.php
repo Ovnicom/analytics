@@ -57,11 +57,9 @@ Route::middleware(['auth', 'module:msp_reports'])
     ->prefix('admin/reports/msp')
     ->name('admin.msp.')
     ->group(function () {
-        Route::get('/',        [MspReportController::class, 'index'])->name('index');
-        Route::post('/upload', [MspReportController::class, 'upload'])->name('upload');
-
-        Route::get('/sharepoint',         [MspReportController::class, 'sharepointIndex'])->name('sharepoint');
+        Route::get('/', [MspReportController::class, 'index'])->name('index');
         Route::post('/sharepoint/import', [MspReportController::class, 'sharepointImport'])->name('sharepoint.import');
+        Route::post('/batch/{batch}/refresh', [MspReportController::class, 'refreshBatch'])->name('batch.refresh');
 
         Route::get('/clientes',                    [MspReportController::class, 'clientes'])->name('clientes');
         Route::get('/clientes/{customer}',         [MspReportController::class, 'clienteDetalle'])->name('clientes.detalle');

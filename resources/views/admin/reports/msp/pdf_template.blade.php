@@ -120,9 +120,7 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size:12px; color:#
             <div class="kpi-box">
                 <div class="kpi-value">{{ $stats['cant_solicitudes'] > 0 ? $stats['cant_solicitudes'] : '—' }}</div>
                 <div class="kpi-label">Cant. de Solicitudes</div>
-                @if($stats['cant_solicitudes'] == 0)
-                    <div class="kpi-empty">• No se generó ticket de solicitud este mes.</div>
-                @endif
+
             </div>
         </div>
         <div style="display:grid;gap:12px;">
@@ -204,9 +202,6 @@ $semanasKeys = collect($alarmaS)->keys()->sort()->values();
     {{-- Solicitudes por ubicación --}}
     <div class="chart-card">
         <h5>Solicitudes generadas por Ubicación</h5>
-        @if($solUbic->isEmpty())
-            <p class="no-data">No se generaron tickets de solicitud este mes.</p>
-        @else
             @foreach($solUbic->take(7) as $loc => $cnt)
             @php $w = max(5, round($cnt/$maxSol*100)); @endphp
             <div class="chart-bar-row">
@@ -221,15 +216,11 @@ $semanasKeys = collect($alarmaS)->keys()->sort()->values();
                 </div>
             </div>
             @endforeach
-        @endif
     </div>
 
     {{-- Incidentes por ubicación --}}
     <div class="chart-card">
         <h5>Incidentes generados por Ubicación</h5>
-        @if($incUbic->isEmpty())
-            <p class="no-data">No se generaron tickets de incidente este mes.</p>
-        @else
             @foreach($incUbic->take(7) as $loc => $cnt)
             @php $w = max(5, round($cnt/$maxInc*100)); @endphp
             <div class="chart-bar-row">
@@ -244,15 +235,11 @@ $semanasKeys = collect($alarmaS)->keys()->sort()->values();
                 </div>
             </div>
             @endforeach
-        @endif
     </div>
 
     {{-- Pie — Clasificación --}}
     <div class="chart-card">
         <h5>Cant. Incidentes por Clasificación de eventos</h5>
-        @if($clasif->isEmpty())
-            <p class="no-data">No se generaron tickets de incidente este mes.</p>
-        @else
             <div class="pie-wrap">
                 <svg class="pie-svg" viewBox="0 0 160 160" style="width:160px;height:160px;">
                     @foreach($pieSegments as $seg)
@@ -301,15 +288,11 @@ $semanasKeys = collect($alarmaS)->keys()->sort()->values();
                     @endforeach
                 </div>
             </div>
-        @endif
     </div>
 
     {{-- Alarma vs Reportado --}}
     <div class="chart-card">
         <h5>Recuento de Incidentes - Alarma vs Reportado<br>Alarma vs Reportado por Semana</h5>
-        @if($semanasKeys->isEmpty())
-            <p class="no-data">No se generaron tickets de incidente este mes.</p>
-        @else
             <div class="grouped-legend">
                 <div class="legend-item">
                     <div class="legend-dot" style="background:#0f8a8a"></div> Alarma
@@ -340,7 +323,6 @@ $semanasKeys = collect($alarmaS)->keys()->sort()->values();
                 @endforeach
             </div>
             <div style="font-size:8px;text-align:center;color:#aaa;margin-top:4px;">0</div>
-        @endif
     </div>
 
 </div>
