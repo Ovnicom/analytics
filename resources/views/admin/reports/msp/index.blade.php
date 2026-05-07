@@ -31,7 +31,7 @@
             @endif
             <div class="text-xs text-amber-600 mt-3">
                 <i class="fa-solid fa-circle-info mr-1"></i>
-                Después de editar el .env, ejecuta: <code class="bg-amber-100 px-1 rounded">docker-compose exec app php artisan config:clear</code>
+                Después de editar el .env, ejecuta: <code class="bg-amber-100 px-1 rounded">php artisan config:clear</code>
             </div>
         </div>
     </div>
@@ -89,7 +89,8 @@
                         <th class="pb-3 pr-4">Período</th>
                         <th class="pb-3 pr-4">Registros</th>
                         <th class="pb-3 pr-4">Clientes</th>
-                        <th class="pb-3">Fecha</th>
+                        <th class="pb-3 pr-4">Fecha</th>
+                        <th class="pb-3">Acción</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y dark:divide-gray-700">
@@ -106,7 +107,29 @@
                         </td>
                         <td class="py-3 pr-4 text-gray-600 dark:text-gray-400">{{ number_format($batch->total_registros) }}</td>
                         <td class="py-3 pr-4 text-gray-600 dark:text-gray-400">{{ number_format($batch->clientes_unicos) }}</td>
-                        <td class="py-3 text-gray-400 text-xs">{{ $batch->created_at->format('d/m/Y H:i') }}</td>
+                        <td class="py-3 pr-4 text-gray-400 text-xs">{{ $batch->created_at->format('d/m/Y H:i') }}</td>
+                        <td class="py-3">
+                            @php $diasRestantes = 7 - (int) $batch->created_at->diffInDays(now()); @endphp
+                            @if($batch->sharepoint_item_id && $diasRestantes > 0)
+                                <form action="{{ route('admin.msp.batch.refresh', $batch) }}" method="POST">
+                                    @csrf
+                                    <button type="submit"
+                                            onclick="return confirm('¿Actualizar este batch? Se eliminarán los registros actuales y se re-importará desde SharePoint.')"
+                                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white hover:opacity-90 transition"
+                                            style="background:#0078d4">
+                                        <i class="fa-solid fa-rotate-right"></i>
+                                        Actualizar
+                                        <span class="bg-white/20 px-1.5 rounded">{{ $diasRestantes }}d</span>
+                                    </button>
+                                </form>
+                            @elseif($batch->sharepoint_item_id)
+                                <span class="text-xs text-gray-400 flex items-center gap-1">
+                                    <i class="fa-solid fa-lock"></i> Expirado
+                                </span>
+                            @else
+                                <span class="text-xs text-gray-300">—</span>
+                            @endif
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -132,7 +155,7 @@
         <form action="{{ route('admin.msp.sharepoint.import') }}" method="POST" id="importForm">
             @csrf
             <input type="hidden" name="filename" id="modalFilenameInput">
-            <input type="hidden" name="item_id" id="modalItemIdInput">
+            <input type="hidden" name="item_id"  id="modalItemIdInput">
             <div class="mb-4">
                 <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Período del reporte</label>
                 <input type="text" name="periodo" placeholder="ej: Febrero 2026"
@@ -171,11 +194,11 @@ function loadSharePointFiles() {
     const errDiv = document.getElementById('spError');
     const badge  = document.getElementById('fileBadge');
 
-    btn.disabled   = true;
-    icon.className = 'fa-solid fa-spinner fa-spin';
-    text.textContent = 'Cargando...';
+    btn.disabled         = true;
+    icon.className       = 'fa-solid fa-spinner fa-spin';
+    text.textContent     = 'Cargando...';
 
-    fetch('{{ route("admin.msp.sharepoint") }}', {
+    fetch('{{ route("admin.msp.index") }}', {
         headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
     })
     .then(r => r.json())
@@ -186,47 +209,59 @@ function loadSharePointFiles() {
         if (data.error) {
             document.getElementById('spErrorMsg').textContent = data.error;
             errDiv.classList.remove('hidden');
+
         } else if (data.files && data.files.length > 0) {
             badge.textContent = data.files.length + ' archivos';
             badge.classList.remove('hidden');
+
+            // ← data-filename y data-itemid en lugar de inline onclick con parámetros
             list.innerHTML = data.files.map(f => `
-                <div class="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                <div class="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                     data-filename="${encodeURIComponent(f.name)}"
+                     data-itemid="${encodeURIComponent(f.item_id)}">
                     <div class="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
                         <i class="fa-solid fa-file-excel text-green-600"></i>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="font-medium text-sm text-gray-800 dark:text-white">${f.name}</div>
+                        <div class="font-medium text-sm text-gray-800 dark:text-white truncate">${f.name}</div>
                         <div class="text-xs text-gray-400">${f.size} — Modificado: ${new Date(f.modified).toLocaleDateString('es-PA')}</div>
                     </div>
-                    <button onclick="openImportModal('${f.name}', '${f.item_id}')"
-                            class="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg text-white text-xs font-medium hover:opacity-90"
+                    <button onclick="openImportModal(this)"
+                            class="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg text-white text-xs font-medium hover:opacity-90 transition"
                             style="background:#0078d4">
                         <i class="fa-solid fa-cloud-arrow-down"></i> Importar
                     </button>
                 </div>
             `).join('');
             list.classList.remove('hidden');
+
         } else {
-            list.innerHTML = '<div class="p-8 text-center text-gray-400 text-sm">No se encontraron archivos Excel</div>';
+            list.innerHTML = '<div class="p-8 text-center text-gray-400 text-sm">No se encontraron archivos Excel en SharePoint</div>';
             list.classList.remove('hidden');
         }
 
-        icon.className  = 'fa-solid fa-rotate-right';
+        icon.className   = 'fa-solid fa-rotate-right';
         text.textContent = 'Actualizar';
-        btn.disabled    = false;
+        btn.disabled     = false;
     })
     .catch(() => {
         empty.classList.add('hidden');
         document.getElementById('spErrorMsg').textContent = 'Error de conexión con SharePoint';
         errDiv.classList.remove('hidden');
-        icon.className  = 'fa-solid fa-cloud';
+        icon.className   = 'fa-solid fa-cloud';
         text.textContent = 'Reintentar';
-        btn.disabled    = false;
+        btn.disabled     = false;
     });
 }
 
 // ── Modales ───────────────────────────────────────────────────────────────────
-function openImportModal(filename, itemId) {
+
+// ← ahora recibe el botón y lee los data attributes del row padre
+function openImportModal(btn) {
+    const row      = btn.closest('[data-filename]');
+    const filename = decodeURIComponent(row.dataset.filename);
+    const itemId   = decodeURIComponent(row.dataset.itemid);
+
     document.getElementById('modalFilename').textContent = filename;
     document.getElementById('modalFilenameInput').value  = filename;
     document.getElementById('modalItemIdInput').value    = itemId;
@@ -239,7 +274,7 @@ function closeModal(id) {
 
 // ── Submit importar ───────────────────────────────────────────────────────────
 document.getElementById('importForm').addEventListener('submit', function() {
-    const btn = document.getElementById('importSubmitBtn');
+    const btn     = document.getElementById('importSubmitBtn');
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Importando...';
     btn.disabled  = true;
 });
