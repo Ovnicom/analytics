@@ -21,7 +21,7 @@
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Competencia de Ventas</h1>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Ovnicom · comisiones de <span id="label-periodo" class="font-medium text-gray-700 dark:text-gray-200">—</span> · actualizado {{ now()->format('d/m/Y H:i') }}
+                        Ovnicom · ingresos <span id="label-periodo" class="font-medium text-gray-700 dark:text-gray-200">—</span> · actualizado {{ now()->format('d/m/Y H:i') }}
                     </p>
                 </div>
                 <div class="flex items-center gap-2">
@@ -61,7 +61,7 @@
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-orange-50 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">OTF</span>
                                 <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-100">One-Time Fee</h2>
                             </div>
-                            <p class="text-xs text-gray-400 mt-1">Comisiones por cargo único · <span class="periodo-label">—</span></p>
+                            <p class="text-xs text-gray-400 mt-1">Ingresos por cargo único · <span class="periodo-label">—</span></p>
                         </div>
                         <div class="text-right">
                             <p class="text-xs text-gray-400">Total</p>
@@ -92,7 +92,7 @@
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-400 border border-teal-200 dark:border-teal-500/20">MRC</span>
                                 <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Monthly Recurring</h2>
                             </div>
-                            <p class="text-xs text-gray-400 mt-1">Comisiones recurrentes mensuales · <span class="periodo-label">—</span></p>
+                            <p class="text-xs text-gray-400 mt-1">Ingresos recurrentes mensuales · <span class="periodo-label">—</span></p>
                         </div>
                         <div class="text-right">
                             <p class="text-xs text-gray-400">Total</p>
