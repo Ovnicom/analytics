@@ -110,6 +110,7 @@ class GlpiController extends Controller
         abort_unless(array_key_exists($itemtype, $assetTypes), 404);
 
         $search = $request->get('search', '');
+        $sort   = $request->get('sort', 'total_desc');
         $label  = $assetTypes[$itemtype];
 
         $typeField = match($itemtype) {
@@ -180,13 +181,28 @@ class GlpiController extends Controller
                 }
             }
 
-            // Ordenar por total desc
+            // Ordenar modelos dentro de cada tipo
             foreach ($grouped as $tipo => &$modelos) {
-                uasort($modelos, fn($a, $b) => $b['total'] - $a['total']);
+                match ($sort) {
+                    'deposito_desc' => uasort($modelos, fn($a, $b) => $b['deposito'] - $a['deposito']),
+                    'alfa_asc'      => uksort($modelos, fn($a, $b) => strcmp($a, $b)),
+                    'alfa_desc'     => uksort($modelos, fn($a, $b) => strcmp($b, $a)),
+                    default         => uasort($modelos, fn($a, $b) => $b['total'] - $a['total']),
+                };
             }
-            uasort($grouped, fn($a, $b) =>
-                array_sum(array_column($b, 'total')) - array_sum(array_column($a, 'total'))
-            );
+            unset($modelos);
+
+            // Ordenar tipos
+            match ($sort) {
+                'deposito_desc' => uasort($grouped, fn($a, $b) =>
+                    array_sum(array_column($b, 'deposito')) - array_sum(array_column($a, 'deposito'))
+                ),
+                'alfa_asc'  => uksort($grouped, fn($a, $b) => strcmp($a, $b)),
+                'alfa_desc' => uksort($grouped, fn($a, $b) => strcmp($b, $a)),
+                default     => uasort($grouped, fn($a, $b) =>
+                    array_sum(array_column($b, 'total')) - array_sum(array_column($a, 'total'))
+                ),
+            };
 
         } catch (Exception $e) {
             $grouped = [];
@@ -195,7 +211,7 @@ class GlpiController extends Controller
         }
 
         return view('admin.glpi.items', compact(
-            'grouped', 'total', 'itemtype', 'label', 'search'
+            'grouped', 'total', 'itemtype', 'label', 'search', 'sort'
         ));
     }
 
