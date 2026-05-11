@@ -30,6 +30,11 @@
                         class="px-4 py-2 rounded-lg text-sm font-medium transition border bg-violet-600 text-white border-violet-600">
                         Mes anterior
                     </button>
+                    <button id="btn-mes-actual"
+                        onclick="setMode('mes_actual')"
+                        class="px-4 py-2 rounded-lg text-sm font-medium transition border bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        Mes actual
+                    </button>
                     <button id="btn-acumulado"
                         onclick="setMode('acumulado')"
                         class="px-4 py-2 rounded-lg text-sm font-medium transition border bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -448,8 +453,9 @@
         currentMode = mode;
         const active   = 'px-4 py-2 rounded-lg text-sm font-medium transition border bg-violet-600 text-white border-violet-600';
         const inactive = 'px-4 py-2 rounded-lg text-sm font-medium transition border bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
-        document.getElementById('btn-mes').className       = mode === 'mes'       ? active : inactive;
-        document.getElementById('btn-acumulado').className = mode === 'acumulado' ? active : inactive;
+        document.getElementById('btn-mes').className        = mode === 'mes'        ? active : inactive;
+        document.getElementById('btn-mes-actual').className = mode === 'mes_actual' ? active : inactive;
+        document.getElementById('btn-acumulado').className  = mode === 'acumulado'  ? active : inactive;
         loadData();
     }
 

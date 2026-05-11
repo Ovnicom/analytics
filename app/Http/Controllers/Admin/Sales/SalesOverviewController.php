@@ -24,6 +24,10 @@ class SalesOverviewController extends Controller
         if ($mode === 'acumulado') {
             $data   = $commissions->getByYear($year);
             $label  = 'Acumulado ' . $year;
+        } elseif ($mode === 'mes_actual') {
+            $period = Carbon::now();
+            $data   = $commissions->getByPeriod((string) $period->year, (string) $period->month);
+            $label  = $period->translatedFormat('F Y');
         } else {
             $period = Carbon::now()->subMonth();
             $data   = $commissions->getByPeriod((string) $period->year, (string) $period->month);
