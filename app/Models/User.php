@@ -16,8 +16,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',      // campo string legacy (para el middleware role:admin,editor,etc)
-        'role_id',   // FK al nuevo sistema dinámico
+        'role',         // campo string legacy (para el middleware role:admin,editor,etc)
+        'role_id',      // FK al nuevo sistema dinámico
+        'odoo_user_id', // res.users.id en Odoo — usado para ligar el usuario con sus comisiones
         'two_factor_secret',
         'two_factor_confirmed',
     ];
@@ -71,6 +72,12 @@ class User extends Authenticatable
     public function hasRole(string $role): bool
     {
         return $this->role === $role;
+    }
+
+    // Devuelve true si el usuario es admin o es el propio vendedor (por odoo_user_id)
+    public function canViewVendedorCommissions(int $odooUserId): bool
+    {
+        return $this->isAdmin() || (int) $this->odoo_user_id === $odooUserId;
     }
 
     // ── Módulos accesibles según rol dinámico ────────────────────────────

@@ -48,15 +48,32 @@ class OdooService
 
     public function login(): ?int
     {
-        return $this->call('common', 'login', [
-            $this->db, $this->username, $this->apiKey
-        ]);
+        return Cache::remember('odoo:session:uid', 240, fn() =>
+            $this->call('common', 'login', [
+                $this->db, $this->username, $this->apiKey
+            ])
+        );
     }
 
     public function execute(string $model, string $method, array $args = [], array $kwargs = []): mixed
     {
         $uid = $this->login();
+
+        // Si el UID cacheado ya expiró en Odoo, reintenta una vez con sesión nueva
         if (!$uid) return null;
+
+        $result = $this->call('object', 'execute_kw', [
+            $this->db, $uid, $this->apiKey,
+            $model, $method, $args, $kwargs,
+        ]);
+
+        if ($result === null) {
+            Cache::forget('odoo:session:uid');
+            $uid = $this->login();
+            if (!$uid) return null;
+        } else {
+            return $result;
+        }
 
         return $this->call('object', 'execute_kw', [
             $this->db, $uid, $this->apiKey,

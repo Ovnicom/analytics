@@ -11,21 +11,32 @@ class SurveyApiController extends Controller
 {
     public function receive(Request $request, string $token)
     {
+        // El token de la URL es la autenticación del webhook — debe tener exactamente 64 chars hex
+        if (!preg_match('/^[a-f0-9]{64}$/', $token)) {
+            return response()->json(['message' => 'Token inválido.'], 401);
+        }
+
         $type = SurveyType::where('token', $token)
                           ->where('activo', true)
-                          ->firstOrFail();
+                          ->first();
 
-        // Construir data con solo los campos del tipo
+        if (!$type) {
+            // Respuesta genérica para no revelar si el token existe pero está inactivo
+            return response()->json(['message' => 'Token inválido.'], 401);
+        }
+
+        // Construir data con solo los campos declarados en el tipo — ignorar campos extra
         $data = [];
         foreach ($type->campos as $campo) {
-            $data[$campo] = $request->input($campo);
+            $valor = $request->input($campo);
+            $data[$campo] = is_string($valor) ? strip_tags(trim($valor)) : $valor;
         }
 
         Survey::create([
             'survey_type_id'  => $type->id,
             'fecha'           => now()->toDateString(),
-            'numero_whatsapp' => $request->input('numero_whatsapp'),
-            'nombre'          => $request->input('nombre', 'Sin nombre'),
+            'numero_whatsapp' => strip_tags(trim((string) $request->input('numero_whatsapp', ''))),
+            'nombre'          => strip_tags(trim((string) $request->input('nombre', 'Sin nombre'))),
             'data'            => $data,
         ]);
 
