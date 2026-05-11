@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', fn() => view('welcome'));
 
 Route::get('/dashboard', fn() => view('dashboard'))
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'twofactor'])
     ->name('dashboard');
 
 // ─── Perfil ───────────────────────────────────────────────────────────────────
@@ -177,6 +177,8 @@ Route::middleware('auth')->group(function () {
 
 // ─── 2FA Verify (cada login) ──────────────────────────────────────────────────
 Route::get('/2fa/verify',  [TwoFactorController::class, 'verify'])->name('2fa.verify');
-Route::post('/2fa/verify', [TwoFactorController::class, 'validateCode'])->name('2fa.validate');
+Route::post('/2fa/verify', [TwoFactorController::class, 'validateCode'])
+    ->middleware('throttle:5,1')
+    ->name('2fa.validate');
 
 require __DIR__.'/auth.php';

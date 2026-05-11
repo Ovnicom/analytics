@@ -40,7 +40,7 @@ class SalesOverviewController extends Controller
         if (!empty($vendedorIds)) {
             $users = $commissions->odoo()->execute('res.users', 'search_read',
                 [[['id', 'in', $vendedorIds]]],
-                ['fields' => ['id', 'image_128'], 'limit' => 50]
+                ['fields' => ['id', 'image_128'], 'limit' => 0]
             ) ?? [];
 
             foreach ($users as $u) {

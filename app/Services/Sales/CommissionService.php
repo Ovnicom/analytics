@@ -8,6 +8,12 @@ class CommissionService
 {
     const CACHE_TTL = 300;
 
+    const MONTH_LABELS = [
+        1 => 'Enero',    2 => 'Febrero',   3 => 'Marzo',     4 => 'Abril',
+        5 => 'Mayo',     6 => 'Junio',     7 => 'Julio',     8 => 'Agosto',
+        9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre',
+    ];
+
     public function __construct(private OdooService $odoo) {}
 
     // ── Cargos ────────────────────────────────────────────────
@@ -64,6 +70,33 @@ class CommissionService
             )
             ->map(fn($group) => $group->sum('diff_amount'))
             ->all();
+    }
+
+    // Trae todas las adendas del año de una sola llamada y las indexa por [mes][vendedor_id]
+    private function getAdendasForYear(array $vendedorIds, string $year): array
+    {
+        if (empty($vendedorIds)) return [];
+
+        $adendas = $this->odoo->execute('cargo.adenda', 'search_read',
+            [[
+                ['partner_comercial_user_id_dynamic', 'in', $vendedorIds],
+                ['year_comission',                    '=', $year],
+            ]],
+            [
+                'fields' => ['partner_comercial_user_id_dynamic', 'month_comission', 'diff_amount'],
+                'limit'  => 0,
+            ]
+        ) ?? [];
+
+        $result = [];
+        foreach ($adendas as $a) {
+            $vid   = is_array($a['partner_comercial_user_id_dynamic'])
+                ? $a['partner_comercial_user_id_dynamic'][0]
+                : $a['partner_comercial_user_id_dynamic'];
+            $month = (int) $a['month_comission'];
+            $result[$month][$vid] = ($result[$month][$vid] ?? 0) + $a['diff_amount'];
+        }
+        return $result;
     }
 
     // ── Por período ───────────────────────────────────────────
@@ -181,8 +214,9 @@ class CommissionService
         $byVendedor = $collection
             ->groupBy(fn($r) => is_array($r['user_id']) ? $r['user_id'][0] : ($r['user_id'] ?: 0))
             ->map(function ($group) use ($adendas) {
-                $vendedorId   = is_array($group->first()['user_id']) ? $group->first()['user_id'][0] : '—';
-                $vendedorName = is_array($group->first()['user_id']) ? $group->first()['user_id'][1] : '—';
+                $uid          = $group->first()['user_id'];
+                $vendedorId   = is_array($uid) ? $uid[0] : ($uid ?: 0);
+                $vendedorName = is_array($uid) ? $uid[1] : '—';
                 $totalOtf     = $group->sum('total_otf');
                 $totalMrc     = $group->sum('total_mrc') + ($adendas[$vendedorId] ?? 0); // ← adenda va en MRC
 
@@ -209,6 +243,138 @@ class CommissionService
             'total'       => $totalOtf + $totalMrc,
             'by_vendedor' => $byVendedor,
         ];
+    }
+
+    // ── Por vendedor / mes ────────────────────────────────────
+
+    public function getForVendedorMonth(int $vendedorId, string $year, string $month): ?array
+    {
+        $cacheKey = "commissions:vendedor:{$vendedorId}:period:{$year}:{$month}";
+
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($vendedorId, $year, $month) {
+            $records = $this->odoo->execute('sale.order', 'search_read',
+                [[
+                    ['user_id',                   '=', $vendedorId],
+                    ['year_comission',            '=', $year],
+                    ['month_comission',           '=', $month],
+                    ['to_invoice_button_clicked', '=', true],
+                    ['state',                     '!=', 'cancel'],
+                ]],
+                ['fields' => ['name', 'user_id', 'amount_total', 'date_order'], 'limit' => 0]
+            ) ?? [];
+
+            $vendedorName = $this->resolveVendedorName($records, $vendedorId);
+            if ($vendedorName === null) return null;
+
+            $orderIds = collect($records)->pluck('id')->all();
+            $cargos   = $this->getCargosByOrders($orderIds);
+            $adendas  = $this->getAdendas([$vendedorId], $year, $month);
+
+            $totalOtf  = $this->sumCargos($cargos['otf']);
+            $totalMrc  = $this->sumCargos($cargos['mrc']);
+            $adendaAmt = $adendas[$vendedorId] ?? 0;
+
+            $periodo = ucfirst(
+                \Carbon\Carbon::createFromDate((int) $year, (int) $month, 1)
+                    ->locale('es')
+                    ->translatedFormat('F Y')
+            );
+
+            return [
+                'vendedor_id' => $vendedorId,
+                'vendedor'    => $vendedorName,
+                'periodo'     => $periodo,
+                'otf'         => round($totalOtf, 2),
+                'mrc'         => round($totalMrc, 2),
+                'adendas'     => round($adendaAmt, 2),
+                'total'       => round($totalOtf + $totalMrc + $adendaAmt, 2),
+            ];
+        });
+    }
+
+    // ── Por vendedor / año ────────────────────────────────────
+
+    public function getForVendedorYear(int $vendedorId, string $year): ?array
+    {
+        $cacheKey = "commissions:vendedor:{$vendedorId}:year:{$year}";
+
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($vendedorId, $year) {
+            $records = $this->odoo->execute('sale.order', 'search_read',
+                [[
+                    ['user_id',                   '=', $vendedorId],
+                    ['year_comission',            '=', $year],
+                    ['to_invoice_button_clicked', '=', true],
+                    ['state',                     '!=', 'cancel'],
+                ]],
+                ['fields' => ['name', 'user_id', 'month_comission', 'amount_total', 'date_order'], 'limit' => 0]
+            ) ?? [];
+
+            $vendedorName = $this->resolveVendedorName($records, $vendedorId);
+            if ($vendedorName === null) return null;
+
+            $orderIds      = collect($records)->pluck('id')->all();
+            $cargos        = $this->getCargosByOrders($orderIds);
+            $ordersByMonth = collect($records)->groupBy(fn($r) => (int) $r['month_comission']);
+            $adendasYear   = $this->getAdendasForYear([$vendedorId], $year);
+
+            $meses = [];
+            for ($m = 1; $m <= 12; $m++) {
+                $monthOrderIds = $ordersByMonth->get($m, collect())->pluck('id')->all();
+
+                $otf = collect($monthOrderIds)
+                    ->reduce(fn($c, $id) => $c + ($cargos['otf'][$id] ?? collect())->sum('sub_amount'), 0.0);
+                $mrc = collect($monthOrderIds)
+                    ->reduce(fn($c, $id) => $c + ($cargos['mrc'][$id] ?? collect())->sum('sub_amount'), 0.0);
+
+                $adenda = $adendasYear[$m][$vendedorId] ?? 0;
+
+                $meses[] = [
+                    'mes'    => $m,
+                    'label'  => self::MONTH_LABELS[$m],
+                    'otf'    => round($otf, 2),
+                    'mrc'    => round($mrc, 2),
+                    'adendas'=> round($adenda, 2),
+                    'total'  => round($otf + $mrc + $adenda, 2),
+                ];
+            }
+
+            $totales = [
+                'otf'    => round(array_sum(array_column($meses, 'otf')), 2),
+                'mrc'    => round(array_sum(array_column($meses, 'mrc')), 2),
+                'adendas'=> round(array_sum(array_column($meses, 'adendas')), 2),
+                'total'  => round(array_sum(array_column($meses, 'total')), 2),
+            ];
+
+            return [
+                'vendedor_id' => $vendedorId,
+                'vendedor'    => $vendedorName,
+                'year'        => (int) $year,
+                'meses'       => $meses,
+                'totales'     => $totales,
+            ];
+        });
+    }
+
+    // ── Helpers ───────────────────────────────────────────────
+
+    private function resolveVendedorName(array $records, int $vendedorId): ?string
+    {
+        if (!empty($records)) {
+            $uid = $records[0]['user_id'];
+            if (is_array($uid)) return $uid[1];
+        }
+
+        $users = $this->odoo->execute('res.users', 'search_read',
+            [[['id', '=', $vendedorId]]],
+            ['fields' => ['name'], 'limit' => 1]
+        ) ?? [];
+
+        return $users[0]['name'] ?? null;
+    }
+
+    private function sumCargos(\Illuminate\Support\Collection $grouped): float
+    {
+        return $grouped->reduce(fn($carry, $group) => $carry + $group->sum('sub_amount'), 0.0);
     }
 
     // ── Caché ─────────────────────────────────────────────────

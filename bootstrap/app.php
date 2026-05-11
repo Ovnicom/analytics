@@ -13,8 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'role'   => \App\Http\Middleware\RoleMiddleware::class,
-            'module' => \App\Http\Middleware\CheckModuleAccess::class,
+            'role'      => \App\Http\Middleware\RoleMiddleware::class,
+            'module'    => \App\Http\Middleware\CheckModuleAccess::class,
+            'twofactor' => \App\Http\Middleware\TwoFactorMiddleware::class,
         ]);
         $middleware->statefulApi();
 

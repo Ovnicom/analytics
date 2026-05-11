@@ -99,7 +99,6 @@ class TwoFactorController extends Controller
      */
     public function verify(Request $request)
     {
-        // Si no hay sesión 2FA pendiente, redirigir
         if (!session('2fa_user_id')) {
             return redirect()->route('login');
         }
@@ -123,19 +122,33 @@ class TwoFactorController extends Controller
                 ->withErrors(['code' => 'Sesión expirada. Inicia sesión de nuevo.']);
         }
 
-        $user   = \App\Models\User::findOrFail($userId);
-        $secret = Crypt::decryptString($user->two_factor_secret);
+        $user = \App\Models\User::find($userId);
 
-        $valid = $this->google2fa->verifyKey($secret, $request->code);
+        // Validar que el usuario existe y que el ID de sesión coincide
+        if (!$user || (string) $user->id !== (string) $userId) {
+            session()->forget('2fa_user_id');
+            return redirect()->route('login')
+                ->withErrors(['code' => 'Sesión inválida. Inicia sesión de nuevo.']);
+        }
+
+        if (!$user->two_factor_secret) {
+            session()->forget('2fa_user_id');
+            return redirect()->route('login')
+                ->withErrors(['code' => 'El usuario no tiene 2FA configurado.']);
+        }
+
+        $secret = Crypt::decryptString($user->two_factor_secret);
+        $valid  = $this->google2fa->verifyKey($secret, $request->code);
 
         if (!$valid) {
             return back()->withErrors(['code' => 'Código incorrecto. Inténtalo de nuevo.']);
         }
 
-        // Login completo
+        // Login completo — regenerar sesión para prevenir session fixation
         Auth::login($user);
         session()->forget('2fa_user_id');
         session()->regenerate();
+        session(['2fa_verified' => true]);
 
         return redirect()->intended(route('dashboard'));
     }
