@@ -31,27 +31,46 @@
                 </div>
             @endif
 
-            {{-- Buscador --}}
-            <div class="flex flex-col sm:flex-row gap-3">
-                <form method="GET" action="{{ route('admin.glpi.items', $itemtype) }}" class="flex gap-2 flex-1">
-                    <div class="relative flex-1 max-w-sm">
-                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-                        <input type="text" name="search" value="{{ $search }}"
-                               placeholder="Buscar por nombre..."
-                               class="w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-orange-400 transition"/>
-                    </div>
-                    <button type="submit" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition">
-                        Buscar
-                    </button>
-                    @if($search)
-                        <a href="{{ route('admin.glpi.items', $itemtype) }}" class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition">
-                            Limpiar
-                        </a>
-                    @endif
-                </form>
-            </div>
+            {{-- Buscador + Filtros --}}
+            <form method="GET" action="{{ route('admin.glpi.items', $itemtype) }}"
+                  class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+
+                {{-- Búsqueda --}}
+                <div class="relative flex-1 max-w-sm">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input type="text" name="search" value="{{ $search }}"
+                           placeholder="Buscar por nombre..."
+                           class="w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-orange-400 transition"/>
+                </div>
+
+                {{-- Ordenar por --}}
+                <div class="relative">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
+                    </svg>
+                    <select name="sort" onchange="this.form.submit()"
+                            class="pl-9 pr-8 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 focus:outline-none focus:border-orange-400 transition appearance-none cursor-pointer">
+                        <option value="total_desc"   {{ $sort === 'total_desc'   ? 'selected' : '' }}>Mayor cantidad de equipos</option>
+                        <option value="deposito_desc"{{ $sort === 'deposito_desc'? 'selected' : '' }}>Mayor cantidad en depósito</option>
+                        <option value="alfa_asc"     {{ $sort === 'alfa_asc'     ? 'selected' : '' }}>Alfabético A → Z</option>
+                        <option value="alfa_desc"    {{ $sort === 'alfa_desc'    ? 'selected' : '' }}>Alfabético Z → A</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                    Buscar
+                </button>
+
+                @if($search || $sort !== 'total_desc')
+                    <a href="{{ route('admin.glpi.items', $itemtype) }}"
+                       class="px-3 py-2 text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition">
+                        Limpiar
+                    </a>
+                @endif
+
+            </form>
 
             @if(!empty($grouped))
 
@@ -78,7 +97,7 @@
                     </div>
 
                     {{-- Grid de modelos dentro del tipo --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-start">
                         @foreach($modelos as $modelo => $data)
                             @php
                                 $totalGrupo = $data['total'] ?? 0;
