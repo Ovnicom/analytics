@@ -1,84 +1,67 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet"/>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    {{-- Font Awesome --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        {{-- Aplicar tema ANTES de renderizar para evitar flash --}}
-        <script>
-            // Por defecto: modo claro. Solo dark si el usuario lo eligió explícitamente.
-            if (localStorage.theme === 'dark') {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-                localStorage.theme = 'light';
-            }
-        </script>
-    </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-            @include('layouts.navigation')
+    {{-- Aplicar tema antes de render para evitar flash --}}
+    <script>
+        if (localStorage.theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            if (!localStorage.theme) localStorage.theme = 'light';
+        }
+    </script>
+</head>
+<body class="font-sans antialiased min-h-screen bg-gray-50 dark:bg-gray-900" style="color:var(--text-primary)">
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
+    {{-- Navigation --}}
+    @include('layouts.navigation')
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
+    {{-- Sub-header (breadcrumb / section nav) --}}
+    @isset($header)
+    <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            {{ $header }}
         </div>
+    </div>
+    @endisset
 
-        <script>
-            function toggleTheme() {
-                if (document.documentElement.classList.contains('dark')) {
-                    document.documentElement.classList.remove('dark');
-                    localStorage.theme = 'light';
-                    const moon = document.getElementById('icon-moon');
-                    const sun  = document.getElementById('icon-sun');
-                    if (moon) moon.classList.remove('hidden');
-                    if (sun)  sun.classList.add('hidden');
-                } else {
-                    document.documentElement.classList.add('dark');
-                    localStorage.theme = 'dark';
-                    const moon = document.getElementById('icon-moon');
-                    const sun  = document.getElementById('icon-sun');
-                    if (moon) moon.classList.add('hidden');
-                    if (sun)  sun.classList.remove('hidden');
-                }
-            }
+    {{-- Page Content --}}
+    <main>
+        {{ $slot }}
+    </main>
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const moon = document.getElementById('icon-moon');
-                const sun  = document.getElementById('icon-sun');
-                if (!moon || !sun) return;
-                if (document.documentElement.classList.contains('dark')) {
-                    moon.classList.add('hidden');
-                    sun.classList.remove('hidden');
-                } else {
-                    moon.classList.remove('hidden');
-                    sun.classList.add('hidden');
-                }
-            });
-        </script>
+    <script>
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.theme = isDark ? 'dark' : 'light';
+            updateThemeIcons(isDark);
+        }
 
-        @stack('scripts')
-    </body>
+        function updateThemeIcons(isDark) {
+            document.querySelectorAll('.icon-moon').forEach(el => el.classList.toggle('hidden', isDark));
+            document.querySelectorAll('.icon-sun').forEach(el => el.classList.toggle('hidden', !isDark));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateThemeIcons(document.documentElement.classList.contains('dark'));
+        });
+    </script>
+
+    @stack('scripts')
+</body>
 </html>

@@ -1,3 +1,94 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ══════════════════════════════════════════
+   OVNICOM — Design Tokens
+   Alineados exactamente con la paleta Tailwind gray
+   para que dark: classes y CSS vars sean el mismo color.
+══════════════════════════════════════════ */
+
+/* ── LIGHT MODE ── */
+:root {
+    --ovni-orange:       #e8610a;
+    --ovni-orange-light: #f97316;
+    --ovni-orange-hover: #c2500a;
+
+    /* Tailwind equivalents */
+    --surface-bg:        #f9fafb;   /* gray-50  — fondo de página */
+    --surface-nav:       #ffffff;   /* white    — navbar */
+    --surface-card:      #ffffff;   /* white    — cards */
+    --surface-header:    #ffffff;   /* white    — sub-header */
+    --surface-hover:     #f3f4f6;   /* gray-100 — hover states */
+    --surface-border:    #e5e7eb;   /* gray-200 — borders */
+    --surface-subtle:    #f9fafb;   /* gray-50  — subtle fills */
+
+    --text-primary:      #111827;   /* gray-900 */
+    --text-secondary:    #6b7280;   /* gray-500 */
+    --text-muted:        #9ca3af;   /* gray-400 */
+
+    --shadow-sm:  0 1px 2px rgba(0,0,0,.05);
+    --shadow-md:  0 4px 6px -1px rgba(0,0,0,.07), 0 2px 4px -1px rgba(0,0,0,.04);
+    --shadow-nav: 0 1px 0 #e5e7eb;
+}
+
+/* ── DARK MODE — exactamente Tailwind gray ── */
+.dark {
+    --surface-bg:        #111827;   /* gray-900  — fondo de página */
+    --surface-nav:       #1f2937;   /* gray-800  — navbar */
+    --surface-card:      #1f2937;   /* gray-800  — cards  (= dark:bg-gray-800) */
+    --surface-header:    #1f2937;   /* gray-800  — sub-header */
+    --surface-hover:     #374151;   /* gray-700  — hover (= dark:hover:bg-gray-700) */
+    --surface-border:    #374151;   /* gray-700  — borders (= dark:border-gray-700) */
+    --surface-subtle:    #374151;   /* gray-700  — subtle fills */
+
+    --text-primary:      #f9fafb;   /* gray-50 */
+    --text-secondary:    #9ca3af;   /* gray-400 */
+    --text-muted:        #6b7280;   /* gray-500 */
+
+    --shadow-sm:  0 1px 3px rgba(0,0,0,.4);
+    --shadow-md:  0 4px 12px rgba(0,0,0,.5);
+    --shadow-nav: 0 1px 0 #374151;
+}
+
+/* ── Apply tokens ── */
+body {
+    background-color: var(--surface-bg);
+    color: var(--text-primary);
+}
+
+/* ── Smooth theme switching ── */
+html {
+    transition: background-color .2s ease, color .2s ease;
+}
+
+/* ── Custom scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: var(--surface-border);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ── Selection color ── */
+::selection {
+    background: rgba(232,97,10,.18);
+    color: var(--text-primary);
+}
+
+/* ── Focus ring ── */
+:focus-visible {
+    outline: 2px solid var(--ovni-orange);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* ── Page content fade-in ── */
+.fade-in {
+    animation: fadeIn .22s ease-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

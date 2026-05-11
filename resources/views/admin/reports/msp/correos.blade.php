@@ -5,150 +5,201 @@
 @php $vars = ['[[cliente]]','[[periodo]]','[[incidentes]]','[[solicitudes]]','[[t_inc]]','[[t_sol]]','[[cuenta]]']; @endphp
 
 @section('content')
-<div class="space-y-6 fade-in">
+<style>
+/* ── Correos: tab styles ── */
+.correo-tab-active-orange {
+    border-color: var(--ovni-orange) !important;
+    background: rgba(232,97,10,.07) !important;
+}
+.dark .correo-tab-active-orange {
+    background: rgba(232,97,10,.12) !important;
+}
+.correo-tab-active-blue {
+    border-color: #2563eb !important;
+    background: rgba(37,99,235,.07) !important;
+}
+.dark .correo-tab-active-blue {
+    background: rgba(37,99,235,.12) !important;
+}
+/* ── Form field base ── */
+.correo-input {
+    width:100%;
+    border:1px solid #d1d5db;
+    border-radius:.75rem;
+    padding:.6rem 1rem;
+    font-size:.85rem;
+    color:#111827;
+    background:#fff;
+    transition: border-color .15s, box-shadow .15s;
+    outline:none;
+}
+.correo-input:focus { border-color:var(--ovni-orange); box-shadow:0 0 0 3px rgba(232,97,10,.12); }
+.dark .correo-input { background:#374151; border-color:#4b5563; color:#f9fafb; }
+.dark .correo-input:focus { border-color:var(--ovni-orange); box-shadow:0 0 0 3px rgba(232,97,10,.18); }
+.correo-input-icon { padding-left:2.4rem; }
+.correo-select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right .75rem center; background-size:1rem; padding-right:2.5rem; }
+.correo-label { display:block; font-size:.72rem; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.35rem; }
+.dark .correo-label { color:#9ca3af; }
+/* ── Client list row ── */
+.cliente-row { display:flex; align-items:center; gap:.75rem; padding:.65rem 1rem; border-bottom:1px solid #f3f4f6; transition:background .12s; cursor:pointer; }
+.dark .cliente-row { border-bottom-color:rgba(55,65,81,.6); }
+.cliente-row:hover { background:#fff7f0; }
+.dark .cliente-row:hover { background:#374151; }
+.cliente-row.selected { background:rgba(232,97,10,.08); }
+.dark .cliente-row.selected { background:rgba(232,97,10,.13); }
+.cliente-row-masivo { display:flex; align-items:center; gap:.75rem; padding:.65rem 1rem; border-bottom:1px solid #f3f4f6; transition:background .12s; }
+.dark .cliente-row-masivo { border-bottom-color:rgba(55,65,81,.6); }
+.cliente-row-masivo:hover { background:#eff6ff; }
+.dark .cliente-row-masivo:hover { background:#374151; }
+</style>
+
+<div class="space-y-5 fade-in">
 
     @if(session('success'))
-    <div class="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 text-green-700 dark:text-green-300 rounded-xl text-sm">
-        <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
+    <div class="flex items-center gap-3 p-3.5 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 rounded-xl text-sm">
+        <i class="fa-solid fa-circle-check flex-shrink-0"></i> {{ session('success') }}
     </div>
     @endif
     @if(session('error'))
-    <div class="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 rounded-xl text-sm">
-        <i class="fa-solid fa-circle-xmark"></i> {{ session('error') }}
+    <div class="flex items-center gap-3 p-3.5 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-xl text-sm">
+        <i class="fa-solid fa-circle-xmark flex-shrink-0"></i> {{ session('error') }}
     </div>
     @endif
-
-    {{-- Mostrar errores de validación --}}
     @if($errors->any())
-    <div class="p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 rounded-xl text-sm">
-        <div class="font-semibold mb-2"><i class="fa-solid fa-circle-exclamation"></i> Errores de validación:</div>
-        <ul class="list-disc list-inside">
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
+    <div class="p-3.5 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-xl text-sm">
+        <div class="font-semibold mb-1.5"><i class="fa-solid fa-circle-exclamation mr-1"></i>Errores de validación:</div>
+        <ul class="list-disc list-inside space-y-0.5">
+            @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
         </ul>
     </div>
     @endif
 
-    {{-- Selector de período --}}
-    <div class="bg-white dark:bg-gray-800 rounded-2xl border dark:border-gray-700 shadow-sm p-5">
-        <div class="flex flex-wrap items-center gap-4">
-            <div>
-                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Período</label>
-                <div class="flex gap-2 flex-wrap">
-                    @foreach($periodos as $p)
-                    <a href="{{ route('admin.msp.correos', ['periodo' => $p]) }}"
-                       class="px-4 py-2 rounded-lg text-sm font-medium border transition
-                              {{ $periodo === $p ? 'text-white border-transparent' : 'text-gray-600 border-gray-200 hover:bg-gray-50 dark:text-gray-300 dark:border-gray-600' }}"
-                       style="{{ $periodo === $p ? 'background:var(--ovni-orange)' : '' }}">
-                        {{ $p }}
-                    </a>
-                    @endforeach
-                </div>
+    {{-- ── Top bar: período + contador ── --}}
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm px-5 py-3.5 flex flex-wrap items-center gap-4">
+        <div>
+            <span class="correo-label" style="margin-bottom:.5rem">Período</span>
+            <div class="flex gap-1.5 flex-wrap">
+                @foreach($periodos as $p)
+                <a href="{{ route('admin.msp.correos', ['periodo' => $p]) }}"
+                   class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition
+                          {{ $periodo === $p
+                               ? 'text-white border-transparent'
+                               : 'text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700' }}"
+                   style="{{ $periodo === $p ? 'background:var(--ovni-orange)' : '' }}">
+                    {{ $p }}
+                </a>
+                @endforeach
             </div>
-            <div class="ml-auto text-sm text-gray-500 dark:text-gray-400">
-                <i class="fa-solid fa-users mr-1"></i>
-                <strong>{{ $clientes->count() }}</strong> clientes en este período
-            </div>
+        </div>
+        <div class="ml-auto flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <span class="w-7 h-7 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+                <i class="fa-solid fa-users text-xs text-gray-400"></i>
+            </span>
+            <span><strong class="text-gray-700 dark:text-gray-200">{{ $clientes->count() }}</strong> clientes</span>
         </div>
     </div>
 
-    {{-- Tabs --}}
-    <div class="grid grid-cols-2 gap-4">
+    {{-- ── Tabs ── --}}
+    <div class="flex gap-2">
         <button onclick="switchTab('individual')" id="tab-individual"
-                class="flex items-center gap-3 p-4 rounded-2xl border-2 transition text-left tab-btn"
-                style="border-color:var(--ovni-orange); background:#fff7f0;">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white flex-shrink-0" style="background:var(--ovni-orange)">
+                class="tab-btn flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 transition text-left correo-tab-active-orange">
+            <span class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs flex-shrink-0" style="background:var(--ovni-orange)">
                 <i class="fa-solid fa-envelope"></i>
-            </div>
+            </span>
             <div>
-                <div class="font-semibold text-gray-800 dark:text-white">Envío Individual</div>
-                <div class="text-xs text-gray-500">Envía el reporte PDF a un cliente específico</div>
+                <div class="text-sm font-semibold text-gray-800 dark:text-white">Individual</div>
+                <div class="text-xs text-gray-400 dark:text-gray-500 hidden sm:block">Un cliente a la vez</div>
             </div>
         </button>
         <button onclick="switchTab('masivo')" id="tab-masivo"
-                class="flex items-center gap-3 p-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 transition text-left tab-btn">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white flex-shrink-0 bg-blue-600">
+                class="tab-btn flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 border-gray-200 dark:border-gray-700 transition text-left">
+            <span class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs bg-blue-600 flex-shrink-0">
                 <i class="fa-solid fa-paper-plane"></i>
-            </div>
+            </span>
             <div>
-                <div class="font-semibold text-gray-800 dark:text-white">Envío Masivo</div>
-                <div class="text-xs text-gray-500">Envía reportes a múltiples clientes a la vez</div>
+                <div class="text-sm font-semibold text-gray-800 dark:text-white">Masivo</div>
+                <div class="text-xs text-gray-400 dark:text-gray-500 hidden sm:block">Múltiples clientes</div>
             </div>
         </button>
     </div>
 
     {{-- ══ PANEL INDIVIDUAL ══ --}}
     <div id="panel-individual" class="panel">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl border dark:border-gray-700 shadow-sm overflow-hidden">
-            <div class="p-4 border-b dark:border-gray-700 flex items-center gap-2">
-                <div class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs" style="background:var(--ovni-orange)">
-                    <i class="fa-solid fa-envelope"></i>
-                </div>
-                <h3 class="font-semibold text-gray-700 dark:text-gray-200">Envío Individual</h3>
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+
+            {{-- Header --}}
+            <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2.5 bg-gray-50 dark:bg-gray-800/80">
+                <span class="w-6 h-6 rounded-md flex items-center justify-center text-white text-xs flex-shrink-0" style="background:var(--ovni-orange)">
+                    <i class="fa-solid fa-envelope" style="font-size:.65rem"></i>
+                </span>
+                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200">Envío Individual</h3>
+                <span class="ml-auto text-xs text-gray-400">Selecciona un cliente de la lista</span>
             </div>
 
-            <div class="grid grid-cols-5 divide-x dark:divide-gray-700" style="min-height:520px">
+            <div class="grid grid-cols-5 divide-x divide-gray-100 dark:divide-gray-700" style="min-height:520px">
 
-                {{-- Columna izquierda: lista clientes --}}
+                {{-- Left: client list --}}
                 <div class="col-span-2 flex flex-col">
-                    <div class="p-3 border-b dark:border-gray-700">
+                    <div class="p-3 border-b border-gray-100 dark:border-gray-700">
                         <div class="relative">
-                            <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 dark:text-gray-500" style="font-size:.7rem"></i>
                             <input type="text" id="searchIndividual"
-                                   placeholder="Buscar cliente..." autocomplete="off"
+                                   placeholder="Buscar cliente…" autocomplete="off"
                                    oninput="filterIndividual(this.value)"
-                                   class="w-full border dark:border-gray-600 rounded-lg pl-8 pr-4 py-2 text-xs
-                                          focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white">
+                                   class="correo-input correo-input-icon" style="padding:.5rem .75rem .5rem 2.2rem; font-size:.8rem">
                         </div>
                     </div>
 
-                    <div class="overflow-y-auto flex-1" id="listaIndividual" style="max-height:440px">
+                    <div class="overflow-y-auto flex-1" id="listaIndividual" style="max-height:460px">
                         @foreach($clientes as $cliente)
-                        <div class="cliente-item-individual flex items-center gap-3 px-4 py-3
-                                    hover:bg-orange-50 dark:hover:bg-gray-700 cursor-pointer
-                                    border-b dark:border-gray-700/50 transition"
+                        <div class="cliente-item-individual cliente-row"
                              data-name="{{ strtolower($cliente->customer_name) }}"
                              onclick="elegirCliente('{{ addslashes($cliente->customer_name) }}', '{{ $cliente->email_cliente }}', '{{ $cliente->numero_cuenta }}')">
                             <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                                 style="background:var(--ovni-orange)">
+                                 style="background:linear-gradient(135deg,var(--ovni-orange),#f97316)">
                                 {{ strtoupper(substr($cliente->customer_name, 0, 2)) }}
                             </div>
                             <div class="flex-1 min-w-0">
-                                <div class="text-xs font-medium text-gray-800 dark:text-white truncate">{{ $cliente->customer_name }}</div>
-                                <div class="text-xs {{ $cliente->email_cliente ? 'text-gray-400' : 'text-red-400' }}">
+                                <div class="text-xs font-medium text-gray-800 dark:text-gray-100 truncate">{{ $cliente->customer_name }}</div>
+                                <div class="text-xs {{ $cliente->email_cliente ? 'text-gray-400' : 'text-red-400' }} truncate">
                                     {{ $cliente->email_cliente ?? 'Sin email' }}
                                 </div>
                             </div>
-                            <i class="fa-solid fa-chevron-right text-xs text-gray-300 flex-shrink-0"></i>
+                            <i class="fa-solid fa-chevron-right text-gray-300 dark:text-gray-600 flex-shrink-0" style="font-size:.6rem"></i>
                         </div>
                         @endforeach
-                        <div id="no-results-individual" class="hidden px-4 py-6 text-xs text-gray-400 text-center">
+                        <div id="no-results-individual" class="hidden px-4 py-8 text-xs text-gray-400 text-center">
+                            <i class="fa-solid fa-magnifying-glass mb-2 block text-base opacity-40"></i>
                             No se encontraron clientes
                         </div>
                     </div>
                 </div>
 
-                {{-- Columna derecha: formulario --}}
+                {{-- Right: form --}}
                 <div class="col-span-3 flex flex-col">
-                    <div id="individual-empty" class="flex-1 flex flex-col items-center justify-center p-8 text-center text-gray-400">
-                        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-orange-50 dark:bg-orange-900/20">
-                            <i class="fa-solid fa-arrow-left text-2xl" style="color:var(--ovni-orange)"></i>
+                    {{-- Empty state --}}
+                    <div id="individual-empty" class="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-center">
+                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center bg-orange-50 dark:bg-orange-900/20">
+                            <i class="fa-solid fa-arrow-pointer text-xl" style="color:var(--ovni-orange)"></i>
                         </div>
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Selecciona un cliente</p>
-                        <p class="text-xs mt-1">para comenzar el envío</p>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-600 dark:text-gray-300">Selecciona un cliente</p>
+                            <p class="text-xs text-gray-400 mt-0.5">para ver el formulario de envío</p>
+                        </div>
                     </div>
 
+                    {{-- Form --}}
                     <div id="individual-form" class="hidden flex-1 flex flex-col">
-                        <div class="px-5 py-3 border-b dark:border-gray-700 flex items-center gap-3" style="background:#fff7f0">
+                        {{-- Selected client header --}}
+                        <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center gap-3 bg-orange-50/60 dark:bg-orange-900/10">
                             <div id="ind-avatar" class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-                                 style="background:var(--ovni-orange)">--</div>
+                                 style="background:linear-gradient(135deg,var(--ovni-orange),#f97316)">--</div>
                             <div class="flex-1 min-w-0">
-                                <div id="ind-nombre" class="text-sm font-semibold text-gray-800 truncate"></div>
-                                <div id="ind-email" class="text-xs text-gray-500"></div>
+                                <div id="ind-nombre" class="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate"></div>
+                                <div id="ind-email" class="text-xs text-gray-400 truncate"></div>
                             </div>
                             <button type="button" onclick="limpiarIndividual()"
-                                    class="text-xs text-gray-400 hover:text-gray-600 transition px-2 py-1 rounded-lg hover:bg-white">
+                                    class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition p-1.5 rounded-lg hover:bg-white dark:hover:bg-gray-700">
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
                         </div>
@@ -161,34 +212,38 @@
                                 <input type="hidden" name="plantilla_id" id="input_plantilla_id_individual" value="">
 
                                 <div class="space-y-4">
-                                    <div>
-                                        <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Email destino</label>
-                                        <div class="relative">
-                                            <i class="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                                            <input type="email" name="email" id="input_email" placeholder="cliente@empresa.com" required
-                                                   class="w-full border dark:border-gray-600 rounded-xl pl-9 pr-4 py-2.5 text-sm
-                                                          focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white">
+                                    {{-- Email + Asunto side by side --}}
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="correo-label">Email destino</label>
+                                            <div class="relative">
+                                                <i class="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 dark:text-gray-500" style="font-size:.7rem"></i>
+                                                <input type="email" name="email" id="input_email"
+                                                       placeholder="cliente@empresa.com" required
+                                                       class="correo-input correo-input-icon">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="correo-label">Asunto</label>
+                                            <input type="text" name="subject" id="input_subject"
+                                                   value="Informe MSP — {{ $periodo }}" required
+                                                   class="correo-input">
                                         </div>
                                     </div>
 
+                                    {{-- Plantilla --}}
                                     <div>
-                                        <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Asunto</label>
-                                        <input type="text" name="subject" id="input_subject" value="Informe MSP — {{ $periodo }}" required
-                                               class="w-full border dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm
-                                                      focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white">
-                                    </div>
-
-                                    <div>
-                                        <div class="flex items-center justify-between mb-1">
-                                            <label class="text-xs font-semibold text-gray-500 uppercase">Plantilla</label>
+                                        <div class="flex items-center justify-between mb-1.5">
+                                            <label class="correo-label" style="margin:0">Plantilla</label>
                                             <button type="button" onclick="openModalPlantillas()"
-                                                    class="text-xs text-orange-600 hover:underline flex items-center gap-1">
+                                                    class="text-xs font-medium flex items-center gap-1 transition hover:opacity-80"
+                                                    style="color:var(--ovni-orange)">
                                                 <i class="fa-solid fa-sliders"></i> Gestionar
                                             </button>
                                         </div>
-                                        <select id="select_plantilla_individual" onchange="aplicarPlantillaSeleccionada(this.value, 'individual')"
-                                                class="w-full border dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm
-                                                       focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white">
+                                        <select id="select_plantilla_individual"
+                                                onchange="aplicarPlantillaSeleccionada(this.value, 'individual')"
+                                                class="correo-input correo-select">
                                             <option value="">— Sin plantilla —</option>
                                             <optgroup label="Predeterminadas">
                                                 <option value="__formal">Formal</option>
@@ -199,36 +254,39 @@
                                         </select>
                                     </div>
 
+                                    {{-- Variables --}}
                                     <div>
-                                        <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Insertar variable</label>
+                                        <label class="correo-label">Insertar variable</label>
                                         <div class="flex flex-wrap gap-1">
                                             @foreach($vars as $var)
                                             <button type="button" onclick="insertarVariable('mensaje_individual', '{{ $var }}')"
-                                                    class="text-xs px-2 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-600
-                                                           border border-orange-200 dark:border-orange-700 rounded-lg hover:bg-orange-100 transition font-mono">
+                                                    class="text-xs px-2 py-1 rounded-md border font-mono transition hover:opacity-80"
+                                                    style="background:rgba(232,97,10,.07);color:var(--ovni-orange);border-color:rgba(232,97,10,.25)">
                                                 {{ $var }}
                                             </button>
                                             @endforeach
                                         </div>
                                     </div>
 
+                                    {{-- Mensaje --}}
                                     <div>
-                                        <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Mensaje (opcional)</label>
-                                        <textarea name="mensaje" id="mensaje_individual" rows="4" placeholder="Estimado cliente..."
-                                                  class="w-full border dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm
-                                                         focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white resize-none"></textarea>
+                                        <label class="correo-label">Mensaje <span class="normal-case font-normal text-gray-400">(opcional)</span></label>
+                                        <textarea name="mensaje" id="mensaje_individual" rows="5"
+                                                  placeholder="Estimado cliente…"
+                                                  class="correo-input resize-none"></textarea>
                                     </div>
 
-                                    <div class="flex gap-3 pt-1">
+                                    {{-- Actions --}}
+                                    <div class="flex gap-2 pt-1">
                                         <button type="submit" id="btnSubmitIndividual"
                                                 class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition"
                                                 style="background:var(--ovni-orange)">
-                                            <i class="fa-solid fa-paper-plane"></i> <span id="btnSubmitIndividualText">Enviar con PDF</span>
+                                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                                            <span id="btnSubmitIndividualText">Enviar con PDF</span>
                                         </button>
                                         <a href="#" id="btn-ver-pdf-individual" target="_blank"
-                                           class="flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium
-                                                  text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                                            <i class="fa-solid fa-eye"></i> Ver PDF
+                                           class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                                            <i class="fa-solid fa-eye text-xs"></i> Ver PDF
                                         </a>
                                     </div>
                                 </div>
@@ -242,13 +300,15 @@
 
     {{-- ══ PANEL MASIVO ══ --}}
     <div id="panel-masivo" class="panel hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl border dark:border-gray-700 shadow-sm overflow-hidden">
-            <div class="p-4 border-b dark:border-gray-700 flex items-center gap-2">
-                <div class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xs">
-                    <i class="fa-solid fa-paper-plane"></i>
-                </div>
-                <h3 class="font-semibold text-gray-700 dark:text-gray-200">Envío Masivo</h3>
-                <span id="badge-masivo" class="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-2 py-0.5 rounded-full ml-1">0 seleccionados</span>
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+
+            {{-- Header --}}
+            <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2.5 bg-gray-50 dark:bg-gray-800/80">
+                <span class="w-6 h-6 rounded-md bg-blue-600 flex items-center justify-center text-white text-xs flex-shrink-0">
+                    <i class="fa-solid fa-paper-plane" style="font-size:.65rem"></i>
+                </span>
+                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200">Envío Masivo</h3>
+                <span id="badge-masivo" class="text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full font-medium">0 seleccionados</span>
             </div>
 
             <form action="{{ route('admin.msp.correos.masivo') }}" method="POST" id="formMasivo">
@@ -256,31 +316,27 @@
                 <input type="hidden" name="periodo" value="{{ $periodo }}">
                 <input type="hidden" name="plantilla_id" id="input_plantilla_id_masivo" value="">
 
-                <div class="grid grid-cols-5 divide-x dark:divide-gray-700" style="min-height:520px">
+                <div class="grid grid-cols-5 divide-x divide-gray-100 dark:divide-gray-700" style="min-height:520px">
 
-                    {{-- Columna izquierda: lista con checkboxes --}}
+                    {{-- Left: checkbox list --}}
                     <div class="col-span-2 flex flex-col">
-                        <div class="p-3 border-b dark:border-gray-700">
-                            <div class="relative mb-2">
-                                <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                                <input type="text" placeholder="Buscar cliente..."
+                        <div class="p-3 border-b border-gray-100 dark:border-gray-700 space-y-2">
+                            <div class="relative">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 dark:text-gray-500" style="font-size:.7rem"></i>
+                                <input type="text" placeholder="Buscar cliente…"
                                        oninput="filterMasivo(this.value)"
-                                       class="w-full border dark:border-gray-600 rounded-lg pl-8 pr-4 py-2 text-xs
-                                              focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                                       class="correo-input correo-input-icon" style="padding:.5rem .75rem .5rem 2.2rem; font-size:.8rem">
                             </div>
                             <label class="flex items-center gap-2 px-1 cursor-pointer select-none">
                                 <input type="checkbox" id="checkTodos" onchange="toggleTodosMasivo(this)"
-                                       class="accent-blue-600 w-3.5 h-3.5">
-                                <span class="text-xs text-gray-500 dark:text-gray-400">Seleccionar todos con email</span>
+                                       class="accent-blue-600 w-3.5 h-3.5 rounded">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Todos los que tienen email</span>
                             </label>
                         </div>
 
-                        {{-- Lista con checkboxes — FIX: hidden del email SOLO si hay email --}}
                         <div class="overflow-y-auto flex-1" id="listaMasivo" style="max-height:440px">
                             @foreach($clientes as $cliente)
-                            <label class="cliente-item-masivo flex items-center gap-3 px-4 py-3
-                                          hover:bg-blue-50 dark:hover:bg-gray-700 {{ $cliente->email_cliente ? 'cursor-pointer' : 'cursor-not-allowed opacity-60' }}
-                                          border-b dark:border-gray-700/50 transition"
+                            <label class="cliente-item-masivo cliente-row-masivo {{ $cliente->email_cliente ? 'cursor-pointer' : 'cursor-not-allowed opacity-50' }}"
                                    data-name="{{ strtolower($cliente->customer_name) }}"
                                    data-has-email="{{ $cliente->email_cliente ? '1' : '0' }}">
 
@@ -300,54 +356,55 @@
                                     {{ strtoupper(substr($cliente->customer_name, 0, 2)) }}
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <div class="text-xs font-medium {{ $cliente->email_cliente ? 'text-gray-800 dark:text-white' : 'text-gray-400 dark:text-gray-500' }} truncate">
+                                    <div class="text-xs font-medium {{ $cliente->email_cliente ? 'text-gray-800 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500' }} truncate">
                                         {{ $cliente->customer_name }}
                                     </div>
-                                    <div class="text-xs {{ $cliente->email_cliente ? 'text-gray-400' : 'text-red-400' }}">
+                                    <div class="text-xs {{ $cliente->email_cliente ? 'text-gray-400' : 'text-red-400' }} truncate">
                                         {{ $cliente->email_cliente ?? 'Sin email' }}
                                     </div>
                                 </div>
                             </label>
                             @endforeach
-                            <div id="no-results-masivo" class="hidden px-4 py-6 text-xs text-gray-400 text-center">
+                            <div id="no-results-masivo" class="hidden px-4 py-8 text-xs text-gray-400 text-center">
+                                <i class="fa-solid fa-magnifying-glass mb-2 block text-base opacity-40"></i>
                                 No se encontraron clientes
                             </div>
                         </div>
 
-                        <div class="p-3 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-                            <span class="text-xs text-gray-500" id="count-masivo-bottom">0 clientes seleccionados</span>
+                        <div class="p-3 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30">
+                            <span class="text-xs text-gray-500 dark:text-gray-400" id="count-masivo-bottom">0 clientes seleccionados</span>
                         </div>
                     </div>
 
-                    {{-- Columna derecha: formulario masivo --}}
+                    {{-- Right: masivo form --}}
                     <div class="col-span-3 p-5 flex flex-col gap-4 overflow-y-auto">
-                        <div id="masivo-info-empty" class="flex items-center gap-3 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700">
-                            <i class="fa-solid fa-circle-info text-blue-500 flex-shrink-0"></i>
+
+                        <div class="flex items-start gap-3 p-3.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800" id="masivo-info-empty">
+                            <i class="fa-solid fa-circle-info text-blue-500 flex-shrink-0 mt-0.5"></i>
                             <p class="text-xs text-blue-700 dark:text-blue-300">
-                                Selecciona los clientes de la lista y configura el mensaje a enviar.
-                                Se generará un PDF individual por cada cliente.
+                                Selecciona clientes de la lista. Se generará un PDF individualizado por cada cliente seleccionado.
                             </p>
                         </div>
 
+                        {{-- Asunto --}}
                         <div>
-                            <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Asunto</label>
+                            <label class="correo-label">Asunto</label>
                             <input type="text" name="subject" id="input_subject_masivo"
                                    value="Informe MSP — {{ $periodo }}" required
-                                   class="w-full border dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm
-                                          focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                                   class="correo-input">
                         </div>
 
+                        {{-- Plantilla --}}
                         <div>
-                            <div class="flex items-center justify-between mb-1">
-                                <label class="text-xs font-semibold text-gray-500 uppercase">Plantilla</label>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="correo-label" style="margin:0">Plantilla</label>
                                 <button type="button" onclick="openModalPlantillas()"
-                                        class="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                                        class="text-xs font-medium text-blue-600 flex items-center gap-1 hover:opacity-80 transition">
                                     <i class="fa-solid fa-sliders"></i> Gestionar
                                 </button>
                             </div>
                             <select id="select_plantilla_masivo" onchange="aplicarPlantillaSeleccionada(this.value, 'masivo')"
-                                    class="w-full border dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm
-                                           focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                                    class="correo-input correo-select">
                                 <option value="">— Sin plantilla —</option>
                                 <optgroup label="Predeterminadas">
                                     <option value="__formal">Formal</option>
@@ -358,34 +415,38 @@
                             </select>
                         </div>
 
+                        {{-- Variables --}}
                         <div>
-                            <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Insertar variable</label>
+                            <label class="correo-label">Insertar variable</label>
                             <div class="flex flex-wrap gap-1">
                                 @foreach($vars as $var)
                                 <button type="button" onclick="insertarVariable('mensaje_masivo', '{{ $var }}')"
-                                        class="text-xs px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600
-                                               border border-blue-200 dark:border-blue-700 rounded-lg hover:bg-blue-100 transition font-mono">
+                                        class="text-xs px-2 py-1 rounded-md border font-mono transition hover:opacity-80"
+                                        style="background:rgba(37,99,235,.07);color:#2563eb;border-color:rgba(37,99,235,.2)">
                                     {{ $var }}
                                 </button>
                                 @endforeach
                             </div>
                         </div>
 
-                        <div>
-                            <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Mensaje</label>
-                            <textarea name="mensaje" id="mensaje_masivo" rows="6"
-                                      placeholder="Estimado cliente, adjunto su informe MSP..."
-                                      class="w-full border dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm
-                                             focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white resize-none"></textarea>
-                            <p class="text-xs text-gray-400 mt-1">Las variables <span class="font-mono">[[cliente]]</span>, <span class="font-mono">[[periodo]]</span>, etc. se reemplazan por cada cliente.</p>
+                        {{-- Mensaje --}}
+                        <div class="flex-1">
+                            <label class="correo-label">Mensaje</label>
+                            <textarea name="mensaje" id="mensaje_masivo" rows="7"
+                                      placeholder="Estimado cliente, adjunto su informe MSP…"
+                                      class="correo-input resize-none"></textarea>
+                            <p class="text-xs text-gray-400 mt-1.5">
+                                Las variables <span class="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">[[cliente]]</span>,
+                                <span class="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">[[periodo]]</span>, etc.
+                                se reemplazan individualmente por cada cliente.
+                            </p>
                         </div>
 
-                        {{-- Contenedor donde el JS va a INYECTAR los inputs hidden justo antes del submit --}}
                         <div id="clientes-hidden-container"></div>
 
                         <button type="submit" id="btnSubmitMasivo" disabled
-                                class="flex items-center justify-center gap-2 py-3 rounded-xl text-white text-sm font-semibold bg-blue-600 hover:bg-blue-700 transition mt-auto disabled:opacity-50 disabled:cursor-not-allowed">
-                            <i class="fa-solid fa-paper-plane" id="btnSubmitMasivoIcon"></i>
+                                class="flex items-center justify-center gap-2 py-2.5 rounded-xl text-white text-sm font-semibold bg-blue-600 hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fa-solid fa-paper-plane text-xs" id="btnSubmitMasivoIcon"></i>
                             <span id="btnSubmitMasivoText">Selecciona al menos un cliente</span>
                         </button>
                     </div>
@@ -396,98 +457,102 @@
 </div>
 
 {{-- ══ MODAL GESTIONAR PLANTILLAS ══ --}}
-<div id="modal-plantillas" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col">
-        <div class="flex items-center justify-between px-6 py-4 border-b dark:border-gray-700">
+<div id="modal-plantillas" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-200 dark:border-gray-700">
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs" style="background:var(--ovni-orange)">
+                <span class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs flex-shrink-0" style="background:var(--ovni-orange)">
                     <i class="fa-solid fa-palette"></i>
-                </div>
+                </span>
                 <h3 class="font-bold text-gray-800 dark:text-white">Gestionar Plantillas</h3>
             </div>
-            <button onclick="closeModalPlantillas()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition">
-                <i class="fa-solid fa-xmark text-lg"></i>
+            <button onclick="closeModalPlantillas()"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
 
-        <div class="flex flex-1 overflow-hidden divide-x dark:divide-gray-700">
-            <div class="w-64 flex flex-col flex-shrink-0">
-                <div class="p-3 border-b dark:border-gray-700">
+        <div class="flex flex-1 overflow-hidden divide-x divide-gray-200 dark:divide-gray-700">
+            {{-- Sidebar --}}
+            <div class="w-60 flex flex-col flex-shrink-0">
+                <div class="p-3 border-b border-gray-100 dark:border-gray-700">
                     <button type="button" onclick="nuevaPlantilla()"
-                            class="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-white text-xs font-medium hover:opacity-90 transition"
+                            class="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-white text-xs font-semibold hover:opacity-90 transition"
                             style="background:var(--ovni-orange)">
                         <i class="fa-solid fa-plus"></i> Nueva plantilla
                     </button>
                 </div>
-                <div class="overflow-y-auto flex-1">
-                    <div class="px-3 py-2 text-xs font-semibold text-gray-400 uppercase border-b dark:border-gray-700">Predeterminadas</div>
+                <div class="overflow-y-auto flex-1 text-xs">
+                    <div class="px-3 py-2 font-semibold text-gray-400 uppercase tracking-wide border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30">Predeterminadas</div>
                     @foreach(['formal' => 'Formal', 'cordial' => 'Cordial', 'breve' => 'Breve'] as $key => $label)
-                    <div class="flex items-center gap-2 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer border-b dark:border-gray-700/50"
+                    <div class="flex items-center gap-2 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer border-b border-gray-100 dark:border-gray-700/50 transition"
                          onclick="verPlantillaPredeterminada('{{ $key }}')">
                         <div class="w-6 h-6 rounded-md bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                            <i class="fa-solid fa-file-lines text-xs text-gray-400"></i>
+                            <i class="fa-solid fa-file-lines text-gray-400" style="font-size:.65rem"></i>
                         </div>
-                        <span class="text-xs text-gray-700 dark:text-gray-300">{{ $label }}</span>
-                        <span class="ml-auto text-xs bg-gray-100 dark:bg-gray-700 text-gray-400 px-1.5 py-0.5 rounded">Base</span>
+                        <span class="text-gray-700 dark:text-gray-300">{{ $label }}</span>
+                        <span class="ml-auto bg-gray-100 dark:bg-gray-700 text-gray-400 px-1.5 py-0.5 rounded text-xs">Base</span>
                     </div>
                     @endforeach
-                    <div class="px-3 py-2 text-xs font-semibold text-gray-400 uppercase border-b dark:border-gray-700 mt-1">Mis plantillas</div>
+                    <div class="px-3 py-2 font-semibold text-gray-400 uppercase tracking-wide border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 mt-1">Mis plantillas</div>
                     <div id="lista-custom-plantillas">
-                        <div class="px-3 py-4 text-xs text-gray-400 text-center" id="no-custom-plantillas">
-                            <i class="fa-solid fa-inbox mb-1 text-lg block"></i>
+                        <div class="px-3 py-6 text-gray-400 text-center" id="no-custom-plantillas">
+                            <i class="fa-solid fa-inbox mb-2 block text-xl opacity-30"></i>
                             Sin plantillas guardadas
                         </div>
                     </div>
                 </div>
             </div>
 
+            {{-- Editor --}}
             <div class="flex-1 flex flex-col overflow-hidden">
-                <div class="flex-1 overflow-y-auto p-6">
-                    <div id="editor-empty" class="h-full flex flex-col items-center justify-center text-center text-gray-400">
-                        <i class="fa-solid fa-arrow-left text-3xl mb-3"></i>
-                        <p class="text-sm font-medium">Selecciona una plantilla</p>
-                        <p class="text-xs mt-1">o crea una nueva</p>
+                <div class="flex-1 overflow-y-auto p-5">
+                    <div id="editor-empty" class="h-full flex flex-col items-center justify-center text-center text-gray-400 gap-2">
+                        <i class="fa-solid fa-arrow-left text-3xl opacity-30"></i>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Selecciona una plantilla</p>
+                        <p class="text-xs">o crea una nueva</p>
                     </div>
 
                     <div id="editor-form" class="hidden space-y-4">
                         <input type="hidden" id="plantilla_id" value="">
                         <input type="hidden" id="plantilla_es_predeterminada" value="0">
 
-                        <div>
-                            <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Nombre</label>
-                            <input type="text" id="plantilla_nombre" placeholder="Ej: Plantilla corporativa"
-                                   class="w-full border dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white">
-                        </div>
-
-                        <div>
-                            <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Asunto (opcional)</label>
-                            <input type="text" id="plantilla_asunto" placeholder="Informe MSP — [[periodo]]"
-                                   class="w-full border dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="correo-label">Nombre</label>
+                                <input type="text" id="plantilla_nombre" placeholder="Ej: Plantilla corporativa"
+                                       class="correo-input">
+                            </div>
+                            <div>
+                                <label class="correo-label">Asunto <span class="normal-case font-normal text-gray-400">(opcional)</span></label>
+                                <input type="text" id="plantilla_asunto" placeholder="Informe MSP — [[periodo]]"
+                                       class="correo-input">
+                            </div>
                         </div>
 
                         <div id="campo-imagen">
-                            <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Imagen / Banner (opcional)</label>
+                            <label class="correo-label">Imagen / Banner <span class="normal-case font-normal text-gray-400">(opcional)</span></label>
                             <div id="imagen-preview-wrap" class="hidden mb-2">
-                                <img id="imagen-preview-img" src="" alt="Preview" class="max-h-24 rounded-lg border dark:border-gray-600 object-contain">
+                                <img id="imagen-preview-img" src="" alt="Preview" class="max-h-24 rounded-lg border border-gray-200 dark:border-gray-600 object-contain">
                                 <button type="button" onclick="quitarImagen()" class="mt-1 text-xs text-red-500 hover:underline block">
                                     <i class="fa-solid fa-trash mr-1"></i> Quitar imagen
                                 </button>
                             </div>
-                            <label class="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-gray-300 dark:border-gray-600
-                                          rounded-xl cursor-pointer hover:border-orange-400 transition text-sm text-gray-500 dark:text-gray-400">
-                                <i class="fa-solid fa-image text-orange-400"></i>
+                            <label class="flex items-center gap-2 px-4 py-3 border-2 border-dashed border-gray-200 dark:border-gray-600
+                                          rounded-xl cursor-pointer hover:border-orange-400 transition text-sm text-gray-400 dark:text-gray-500">
+                                <i class="fa-solid fa-image" style="color:var(--ovni-orange)"></i>
                                 <span id="imagen-label">Subir imagen (JPG, PNG, WEBP — máx. 2MB)</span>
                                 <input type="file" id="plantilla_imagen" accept="image/*" class="hidden" onchange="previewImagen(event)">
                             </label>
                         </div>
 
                         <div>
-                            <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Insertar variable</label>
+                            <label class="correo-label">Insertar variable</label>
                             <div class="flex flex-wrap gap-1">
                                 @foreach($vars as $var)
                                 <button type="button" onclick="insertarVariable('plantilla_mensaje', '{{ $var }}')"
-                                        class="text-xs px-2 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-600
-                                               border border-orange-200 dark:border-orange-700 rounded-lg hover:bg-orange-100 transition font-mono">
+                                        class="text-xs px-2 py-1 rounded-md border font-mono transition hover:opacity-80"
+                                        style="background:rgba(232,97,10,.07);color:var(--ovni-orange);border-color:rgba(232,97,10,.25)">
                                     {{ $var }}
                                 </button>
                                 @endforeach
@@ -495,24 +560,23 @@
                         </div>
 
                         <div>
-                            <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Mensaje</label>
-                            <textarea id="plantilla_mensaje" rows="7" placeholder="Escribe el cuerpo del mensaje..."
-                                      class="w-full border dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white resize-none"></textarea>
+                            <label class="correo-label">Mensaje</label>
+                            <textarea id="plantilla_mensaje" rows="7" placeholder="Escribe el cuerpo del mensaje…"
+                                      class="correo-input resize-none"></textarea>
                         </div>
 
-                        <div class="flex gap-3 pt-2">
+                        <div class="flex gap-2 pt-1">
                             <button type="button" onclick="guardarPlantilla()" id="btn-guardar-plantilla"
                                     class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition"
                                     style="background:var(--ovni-orange)">
                                 <i class="fa-solid fa-floppy-disk"></i> Guardar
                             </button>
                             <button type="button" onclick="usarPlantilla()"
-                                    class="flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium
-                                           text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                                    class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                                 <i class="fa-solid fa-check"></i> Usar
                             </button>
                             <button type="button" id="btn-eliminar-plantilla" onclick="eliminarPlantilla()"
-                                    class="hidden flex items-center gap-2 px-4 py-2.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-sm font-medium transition">
+                                    class="hidden items-center gap-2 px-3 py-2.5 rounded-xl border border-red-200 dark:border-red-800 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
@@ -702,10 +766,13 @@
     window.switchTab = function(tab) {
         document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
         document.getElementById('panel-' + tab).classList.remove('hidden');
-        document.querySelectorAll('.tab-btn').forEach(b => { b.style.borderColor = ''; b.style.background = ''; });
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('correo-tab-active-orange', 'correo-tab-active-blue');
+            b.style.borderColor = '';
+        });
         const btn = document.getElementById('tab-' + tab);
-        if (tab === 'individual') { btn.style.borderColor = 'var(--ovni-orange)'; btn.style.background = '#fff7f0'; }
-        else { btn.style.borderColor = '#2563eb'; btn.style.background = '#eff6ff'; }
+        if (tab === 'individual') btn.classList.add('correo-tab-active-orange');
+        else btn.classList.add('correo-tab-active-blue');
     };
 
     window.openModalPlantillas  = function() { document.getElementById('modal-plantillas').classList.remove('hidden'); cargarPlantillas(); };
