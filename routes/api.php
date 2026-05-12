@@ -3,10 +3,15 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\SurveyApiController;
 use App\Http\Controllers\Api\Sales\CommissionsController;
+use App\Http\Controllers\Api\MspClientController;
 
 // ── Encuestas (webhook público — autenticado por token en URL) ────────────────
 Route::middleware('throttle:30,1')
     ->post('/surveys/{token}', [SurveyApiController::class, 'receive']);
+
+// ── MSP Clientes ─────────────────────────────────────────────────────────────
+Route::middleware(['auth:sanctum', 'throttle:10,1'])
+    ->post('/v1/msp-clients/bulk-update', [MspClientController::class, 'bulkUpdate']);
 
 // ── Ventas / Comisiones ───────────────────────────────────────────────────────
 Route::middleware(['auth:sanctum', 'throttle:60,1'])

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\MspCredential;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class MspService
@@ -10,7 +11,8 @@ class MspService
     protected string $baseUrl;
     protected string $authHeader;
 
-    private const CHUNK_SIZE = 100;
+    private const CHUNK_SIZE    = 25;
+    private const CF_CACHE_TTL  = 86400; // custom fields de tickets cerrados: 24 horas
 
     private const CUSTOM_FIELD_IDS = [
         '3113f8e8-1d04-f011-90cd-000d3a1010e6', // Tipo de Cliente
@@ -134,19 +136,31 @@ class MspService
         ));
 
         $extraData  = [];
-        $chunks     = array_chunk($tickets, self::CHUNK_SIZE);
         $totalDone  = 0;
         $totalCount = count($tickets);
 
+        // Pre-cargar EP3 desde cache — EP2 siempre se consulta (puede cambiar)
+        $cfCache = [];
+        foreach ($tickets as $ticket) {
+            $ticketId = $ticket['TicketId'];
+            $cached   = Cache::get("msp_cf_{$ticketId}");
+            if ($cached !== null) {
+                $cfCache[$ticketId] = $cached;
+            }
+        }
+
+        $cacheHits = count($cfCache);
+        $chunks    = array_chunk($tickets, self::CHUNK_SIZE);
+
         foreach ($chunks as $chunk) {
 
-            $responses = Http::pool(function ($pool) use ($chunk, $fieldFilter) {
+            $responses = Http::pool(function ($pool) use ($chunk, $fieldFilter, $cfCache) {
                 $requests = [];
 
                 foreach ($chunk as $ticket) {
                     $ticketId = $ticket['TicketId'];
 
-                    // EP2: time entry
+                    // EP2: time entry — siempre se consulta (puede cambiar)
                     $urlEP2 = $this->baseUrl
                         . '/tickettimeentriesview'
                         . '?$filter='  . rawurlencode("TicketId eq {$ticketId}")
@@ -157,26 +171,27 @@ class MspService
                     $requests[] = $pool
                         ->as("te_{$ticketId}")
                         ->withHeaders(['Authorization' => $this->authHeader])
-                        ->timeout(30)
+                        ->timeout(15)
                         ->get($urlEP2);
 
-                    // EP3: custom fields
-                    $urlEP3 = $this->baseUrl
-                        . '/tickets/' . $ticketId . '/customfields'
-                        . '?$select=' . rawurlencode('ticketId,name,value')
-                        . '&$filter=' . rawurlencode($fieldFilter);
+                    // EP3: custom fields — solo si no está en cache
+                    if (!isset($cfCache[$ticketId])) {
+                        $urlEP3 = $this->baseUrl
+                            . '/tickets/' . $ticketId . '/customfields'
+                            . '?$select=' . rawurlencode('ticketId,name,value')
+                            . '&$filter=' . rawurlencode($fieldFilter);
 
-                    $requests[] = $pool
-                        ->as("cf_{$ticketId}")
-                        ->withHeaders(['Authorization' => $this->authHeader])
-                        ->timeout(30)
-                        ->get($urlEP3);
+                        $requests[] = $pool
+                            ->as("cf_{$ticketId}")
+                            ->withHeaders(['Authorization' => $this->authHeader])
+                            ->timeout(15)
+                            ->get($urlEP3);
+                    }
                 }
 
                 return $requests;
             });
 
-            // Procesar respuestas del lote
             foreach ($chunk as $ticket) {
                 $ticketId = $ticket['TicketId'];
 
@@ -190,20 +205,25 @@ class MspService
                     }
                 } catch (\Throwable $e) {}
 
-                // EP3
-                $customFields = [];
-                try {
-                    $cfResp = $responses["cf_{$ticketId}"] ?? null;
-                    if ($cfResp && method_exists($cfResp, 'failed') && !$cfResp->failed()) {
-                        $raw = $cfResp->json() ?? [];
-                        if (isset($raw['value'])) $raw = $raw['value'];
-                        foreach ($raw as $field) {
-                            $name  = trim($field['name']  ?? $field['Name']  ?? '');
-                            $value = $field['value'] ?? $field['Value'] ?? '';
-                            if ($name !== '') $customFields[$name] = $value ?? '';
+                // EP3 — desde cache o desde respuesta del pool
+                if (isset($cfCache[$ticketId])) {
+                    $customFields = $cfCache[$ticketId];
+                } else {
+                    $customFields = [];
+                    try {
+                        $cfResp = $responses["cf_{$ticketId}"] ?? null;
+                        if ($cfResp && method_exists($cfResp, 'failed') && !$cfResp->failed()) {
+                            $raw = $cfResp->json() ?? [];
+                            if (isset($raw['value'])) $raw = $raw['value'];
+                            foreach ($raw as $field) {
+                                $name  = trim($field['name']  ?? $field['Name']  ?? '');
+                                $value = $field['value'] ?? $field['Value'] ?? '';
+                                if ($name !== '') $customFields[$name] = $value ?? '';
+                            }
+                            Cache::put("msp_cf_{$ticketId}", $customFields, self::CF_CACHE_TTL);
                         }
-                    }
-                } catch (\Throwable $e) {}
+                    } catch (\Throwable $e) {}
+                }
 
                 $extraData[$ticketId] = [
                     'timeEntry'    => $timeEntry,
@@ -211,7 +231,6 @@ class MspService
                 ];
             }
 
-            // Reportar progreso después de cada lote
             $totalDone += count($chunk);
             if ($onChunkDone) {
                 $onChunkDone($totalDone, $totalCount);

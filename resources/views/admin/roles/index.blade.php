@@ -72,17 +72,6 @@
     </div>
 
     {{-- Roles: fila 2 → 3 columnas --}}
-    @php
-    $modulosConfig = [
-        'msp_reports' => ['label'=>'MSP Reports','icon'=>'fa-file-chart-column','light_color'=>'#c2410c','light_bg'=>'#fff3e8','dark_color'=>'#fb923c','dark_bg'=>'rgba(232,97,10,.15)'],
-        'api_msp'     => ['label'=>'API MSP',    'icon'=>'fa-code',             'light_color'=>'#6d28d9','light_bg'=>'#f0edfe','dark_color'=>'#a78bfa','dark_bg'=>'rgba(124,58,237,.15)'],
-        'meta2'       => ['label'=>'META 2',     'icon'=>'fa-bolt',             'light_color'=>'#065f46','light_bg'=>'#d1fae5','dark_color'=>'#34d399','dark_bg'=>'rgba(5,150,105,.15)'],
-        'encuestas'   => ['label'=>'Encuestas',  'icon'=>'fa-clipboard-list',   'light_color'=>'#1d4ed8','light_bg'=>'#dbeafe','dark_color'=>'#60a5fa','dark_bg'=>'rgba(37,99,235,.15)'],
-        'usuarios'    => ['label'=>'Usuarios',   'icon'=>'fa-users',            'light_color'=>'#86198f','light_bg'=>'#fdf4ff','dark_color'=>'#e879f9','dark_bg'=>'rgba(162,28,175,.15)'],
-        'glpi'        => ['label'=>'GLPI',       'icon'=>'fa-server',           'light_color'=>'#0e7490','light_bg'=>'#cffafe','dark_color'=>'#22d3ee','dark_bg'=>'rgba(8,145,178,.15)'],
-        'sales'       => ['label'=>'Sales',      'icon'=>'fa-chart-line',       'light_color'=>'#0f766e','light_bg'=>'#ccfbf1','dark_color'=>'#2dd4bf','dark_bg'=>'rgba(13,148,136,.15)'],
-    ];
-    @endphp
 
     <div class="rp-grid-3" style="align-items:start">
 
@@ -93,7 +82,7 @@
             $visible    = array_slice($modulos, 0, $maxVisible);
             $restantes  = count($modulos) - $maxVisible;
             $initials   = strtoupper(substr($role->nombre, 0, 2));
-            $pct        = count($modulosConfig) > 0 ? (count($modulos) / count($modulosConfig)) * 100 : 0;
+            $pct        = count($modulos) > 0 ? (count($modulos) / count(config('modules'))) * 100 : 0;
             $canDelete  = $role->users_count === 0;
         @endphp
 
@@ -116,13 +105,13 @@
             {{-- Chips módulos --}}
             <div class="rp-chips">
                 @forelse($visible as $modSlug)
-                    @if(isset($modulosConfig[$modSlug]))
-                    @php $mc = $modulosConfig[$modSlug]; @endphp
+                    @if(isset($modulos[$modSlug]))
+                    @php $mc = $modulos[$modSlug]; @endphp
                     <span class="rp-chip"
                           style="--chip-light-color:{{ $mc['light_color'] }};--chip-light-bg:{{ $mc['light_bg'] }};
                                  --chip-dark-color:{{ $mc['dark_color'] }};--chip-dark-bg:{{ $mc['dark_bg'] }}">
                         <i class="fa-solid {{ $mc['icon'] }}" style="font-size:.58rem"></i>
-                        {{ $mc['label'] }}
+                        {{ $mc['nombre'] }}
                     </span>
                     @endif
                 @empty
@@ -241,24 +230,12 @@
                         </span>
                     </div>
 
-                    @php
-                    $modulosList = [
-                        ['slug' => 'msp_reports', 'nombre' => 'MSP Reports', 'desc' => 'Reportes y correos',    'color' => '#e8610a', 'bg' => '#fff3e8', 'icon' => 'fa-file-chart-column'],
-                        ['slug' => 'api_msp',     'nombre' => 'API MSP',     'desc' => 'Consulta de la API',    'color' => '#7c3aed', 'bg' => '#f0edfe', 'icon' => 'fa-code'],
-                        ['slug' => 'meta2',       'nombre' => 'META 2',      'desc' => 'Metas y objetivos',     'color' => '#059669', 'bg' => '#ecfdf5', 'icon' => 'fa-bolt'],
-                        ['slug' => 'encuestas',   'nombre' => 'Encuestas',   'desc' => 'Satisfacción clientes', 'color' => '#2563eb', 'bg' => '#eff6ff', 'icon' => 'fa-clipboard-list'],
-                        ['slug' => 'usuarios',    'nombre' => 'Usuarios',    'desc' => 'Gestión de accesos',    'color' => '#a21caf', 'bg' => '#fdf4ff', 'icon' => 'fa-users'],
-                        ['slug' => 'glpi',        'nombre' => 'GLPI',        'desc' => 'Inventario de activos', 'color' => '#0891b2', 'bg' => '#ecfeff', 'icon' => 'fa-server'],
-                        ['slug' => 'sales',       'nombre' => 'Sales',       'desc' => 'Dashboard de ventas',   'color' => '#0d9488', 'bg' => '#f0fdfa', 'icon' => 'fa-chart-line'],
-                    ];
-                    @endphp
-
                     <div class="grid grid-cols-2 gap-2" id="modulos-grid">
-                        @foreach($modulosList as $mod)
+                        @foreach($modulos as $slug => $mod)
                         <label class="modulo-card relative flex items-center gap-3 p-3 border-2 border-gray-100 dark:border-gray-700 rounded-xl cursor-pointer
                                       hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-150 select-none
                                       bg-white dark:bg-gray-800">
-                            <input type="checkbox" name="modulos[]" value="{{ $mod['slug'] }}"
+                            <input type="checkbox" name="modulos[]" value="{{ $slug }}"
                                    class="modulo-check sr-only"
                                    onchange="updateCardStyle(this)">
                             <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors"
@@ -267,7 +244,7 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <span class="block text-xs font-semibold text-gray-800 dark:text-white">{{ $mod['nombre'] }}</span>
-                                <span class="block text-xs text-gray-400 dark:text-gray-500 truncate">{{ $mod['desc'] }}</span>
+                                <span class="block text-xs text-gray-400 dark:text-gray-500 truncate">{{ $mod['descripcion'] }}</span>
                             </div>
                             <div class="modulo-indicator w-5 h-5 rounded-full border-2 border-gray-200 dark:border-gray-600
                                         flex items-center justify-center flex-shrink-0 transition-all duration-150">

@@ -16,9 +16,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',         // campo string legacy (para el middleware role:admin,editor,etc)
-        'role_id',      // FK al nuevo sistema dinámico
-        'odoo_user_id', // res.users.id en Odoo — usado para ligar el usuario con sus comisiones
+        'role_id',
+        'odoo_user_id',
         'two_factor_secret',
         'two_factor_confirmed',
     ];
@@ -53,25 +52,25 @@ class User extends Authenticatable
         return $this->roleModel?->hasModule($slug) ?? false;
     }
 
-    // ── Métodos de rol estáticos (compatibilidad con middleware existente) ─
+    // ── Métodos de rol (basados en relación dinámica) ────────────────────
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->roleModel?->slug === 'admin';
     }
 
     public function isEditor(): bool
     {
-        return $this->role === 'editor';
+        return $this->roleModel?->slug === 'editor';
     }
 
     public function isVentas(): bool
     {
-        return $this->role === 'ventas';
+        return $this->roleModel?->slug === 'ventas';
     }
 
     public function hasRole(string $role): bool
     {
-        return $this->role === $role;
+        return $this->roleModel?->slug === $role;
     }
 
     // Devuelve true si el usuario es admin o es el propio vendedor (por odoo_user_id)
@@ -83,20 +82,19 @@ class User extends Authenticatable
     // ── Módulos accesibles según rol dinámico ────────────────────────────
     public function modulosAccesibles(): array
     {
-        if ($this->isAdmin()) {
-            return ['msp_reports', 'api_msp', 'meta2', 'encuestas', 'usuarios', 'sales'];
-        }
+        $this->loadMissing('roleModel');
         return $this->roleModel?->modulos ?? [];
     }
 
     protected static function booted(): void
     {
-        // ✅ Sincroniza el campo role (legacy) con el slug del rol dinámico
         static::saving(function ($user) {
-            if ($user->isDirty('role_id') && $user->role_id) {
-                $role = \App\Models\Role::find($user->role_id);
-                if ($role) {
-                    $user->role = $role->slug;
+            if ($user->isDirty('role_id')) {
+                if ($user->role_id) {
+                    $role = \App\Models\Role::find($user->role_id);
+                    $user->role = $role?->slug;
+                } else {
+                    $user->role = null;
                 }
             }
         });

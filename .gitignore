@@ -26,6 +26,8 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 .claude
+agent-skills/
+docs/
 # === SECRETOS ADICIONALES ===
 .env.local
 .env.*.local
@@ -86,3 +88,4 @@ Desktop.ini
 .phpstan.cache
 .rector.cache
 .eslintcache
+CLAUDE.md

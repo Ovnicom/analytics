@@ -413,6 +413,65 @@ class OdooService
         });
     }
 
+    // ── Métricas bulk (1 call por métrica para todos los ejecutivos) ──
+
+    public function getMetricsForAllExecutives(array $userIds, ?string $dateFrom = null, ?string $dateTo = null): array
+    {
+        if (empty($userIds)) return [];
+
+        $cacheKey = 'odoo:metrics:bulk:' . md5(implode(',', $userIds) . $dateFrom . $dateTo);
+
+        return Cache::remember($cacheKey, self::CACHE_KPI, function () use ($userIds, $dateFrom, $dateTo) {
+            // Leads — 1 sola llamada para todos los usuarios
+            $domainLeads = [['user_id', 'in', $userIds], ['type', '=', 'lead']];
+            if ($dateFrom) $domainLeads[] = ['create_date', '>=', $dateFrom];
+            if ($dateTo)   $domainLeads[] = ['create_date', '<=', $dateTo];
+            $leadsRaw = $this->execute('crm.lead', 'search_read', [$domainLeads], ['fields' => ['user_id'], 'limit' => 0]) ?? [];
+
+            // Ganadas — 1 sola llamada
+            $domainWon = [['user_id', 'in', $userIds], ['stage_id.is_won', '=', true]];
+            if ($dateFrom) $domainWon[] = ['date_closed', '>=', $dateFrom];
+            if ($dateTo)   $domainWon[] = ['date_closed', '<=', $dateTo];
+            $wonRaw = $this->execute('crm.lead', 'search_read', [$domainWon], ['fields' => ['user_id'], 'limit' => 0]) ?? [];
+
+            // Pipeline — 1 sola llamada
+            $domainPipeline = [['user_id', 'in', $userIds], ['state', 'in', ['draft', 'sent']]];
+            if ($dateFrom) $domainPipeline[] = ['date_order', '>=', $dateFrom];
+            if ($dateTo)   $domainPipeline[] = ['date_order', '<=', $dateTo];
+            $pipelineRaw = $this->execute('sale.order', 'search_read', [$domainPipeline], ['fields' => ['user_id'], 'limit' => 0]) ?? [];
+
+            // Sin contacto — 1 sola llamada
+            $noContactRaw = $this->execute('res.partner', 'search_read',
+                [[
+                    ['user_id',                'in',   $userIds],
+                    ['customer_rank',          '>',    0],
+                    ['activity_date_deadline', '=',    false],
+                ]],
+                ['fields' => ['user_id'], 'limit' => 0]
+            ) ?? [];
+
+            // Agrupar por user_id en PHP
+            $extractUserId = fn($row) => is_array($row['user_id']) ? (int) $row['user_id'][0] : (int) $row['user_id'];
+
+            $leads     = collect($leadsRaw)->groupBy($extractUserId)->map->count();
+            $won       = collect($wonRaw)->groupBy($extractUserId)->map->count();
+            $pipeline  = collect($pipelineRaw)->groupBy($extractUserId)->map->count();
+            $noContact = collect($noContactRaw)->groupBy($extractUserId)->map->count();
+
+            $result = [];
+            foreach ($userIds as $id) {
+                $result[$id] = [
+                    'leads'     => $leads->get($id, 0),
+                    'won'       => $won->get($id, 0),
+                    'pipeline'  => $pipeline->get($id, 0),
+                    'noContact' => $noContact->get($id, 0),
+                ];
+            }
+
+            return $result;
+        });
+    }
+
     // ── Detalle ejecutiva — oportunidades CRM ─────────────────
 
     public function getOpportunitiesByExecutive(int $userId, int $limit = 20): array

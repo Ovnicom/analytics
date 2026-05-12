@@ -2,21 +2,24 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Role;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Usuario Admin
-        User::create([
-            'name'     => 'Irving Villarreal',
-            'email'    => 'ivillarreal@ovni.com',
-            'password' => Hash::make('Irving09*.'),
-            'role'     => 'admin',
-        ]);
+        $adminRole = Role::where('slug', 'admin')->firstOrFail();
+
+        User::firstOrCreate(
+            ['email' => 'ivillarreal@ovni.com'],
+            [
+                'name'     => 'Irving Villarreal',
+                'password' => Hash::make('Irving09*.'),
+                'role_id'  => $adminRole->id,
+            ]
+        );
     }
 }

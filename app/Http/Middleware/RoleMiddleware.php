@@ -13,11 +13,9 @@ class RoleMiddleware
             abort(403, 'No tienes permiso para acceder aquí.');
         }
 
-        // ✅ Verifica el role string legacy O el slug del rol dinámico
-        $userRole = $user->role;
-        $dynamicSlug = $user->roleModel?->slug ?? null;
+        $userSlug = $user->roleModel?->slug;
 
-        if (!in_array($userRole, $roles) && !in_array($dynamicSlug, $roles)) {
+        if (!$userSlug || !in_array($userSlug, $roles)) {
             abort(403, 'No tienes permiso para acceder aquí.');
         }
 

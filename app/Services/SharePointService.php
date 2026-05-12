@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class SharePointService
@@ -11,7 +12,6 @@ class SharePointService
     private string $clientSecret;
     private string $siteUrl;
     private string $folderId;
-    private ?string $accessToken = null;
 
     public function __construct()
     {
@@ -46,24 +46,25 @@ class SharePointService
 
     public function getAccessToken(): string
     {
-        if ($this->accessToken) return $this->accessToken;
+        $cacheKey = 'sharepoint_token_' . md5($this->clientId);
 
-        $response = Http::asForm()->post(
-            "https://login.microsoftonline.com/{$this->tenantId}/oauth2/v2.0/token",
-            [
-                'grant_type'    => 'client_credentials',
-                'client_id'     => $this->clientId,
-                'client_secret' => $this->clientSecret,
-                'scope'         => 'https://graph.microsoft.com/.default',
-            ]
-        );
+        return Cache::remember($cacheKey, 3500, function () {
+            $response = Http::asForm()->post(
+                "https://login.microsoftonline.com/{$this->tenantId}/oauth2/v2.0/token",
+                [
+                    'grant_type'    => 'client_credentials',
+                    'client_id'     => $this->clientId,
+                    'client_secret' => $this->clientSecret,
+                    'scope'         => 'https://graph.microsoft.com/.default',
+                ]
+            );
 
-        if (!$response->successful()) {
-            throw new \RuntimeException('Error obteniendo token: ' . $response->body());
-        }
+            if (!$response->successful()) {
+                throw new \RuntimeException('Error obteniendo token: ' . $response->body());
+            }
 
-        $this->accessToken = $response->json('access_token');
-        return $this->accessToken;
+            return $response->json('access_token');
+        });
     }
 
     public function getSiteId(): string

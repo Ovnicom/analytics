@@ -105,9 +105,8 @@
                                 {{-- Usuario --}}
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        {{-- ✅ Avatar color basado en si tiene rol dinámico o es admin legacy --}}
                                         <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0
-                                            {{ $user->role === 'admin' || $user->roleModel ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400' }}">
+                                            {{ $user->roleModel ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400' }}">
                                             {{ strtoupper(substr($user->name, 0, 2)) }}
                                         </div>
                                         <div>
@@ -117,7 +116,6 @@
                                     </div>
                                 </td>
 
-                                {{-- ✅ Rol — prioriza el rol dinámico, fallback al legacy --}}
                                 <td class="px-6 py-4">
                                     @if($user->roleModel)
                                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800">
@@ -125,10 +123,6 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                                             </svg>
                                             {{ $user->roleModel->nombre }}
-                                        </span>
-                                    @elseif($user->role)
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
-                                            {{ ucfirst($user->role) }}
                                         </span>
                                     @else
                                         <span class="text-xs text-gray-400 dark:text-gray-500 italic">Sin rol</span>

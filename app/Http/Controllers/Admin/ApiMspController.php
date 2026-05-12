@@ -100,7 +100,11 @@ class ApiMspController extends Controller
                 ]);
 
                 $result = $service->combinePublic($tickets, $extraData);
-                Cache::put($cacheKey, $result, now()->addMinutes(30));
+
+                // Fechas pasadas no cambian: cache de 8h. Rango activo: 30 min.
+                $esPasado = \Carbon\Carbon::parse($fechaFin)->endOfDay()->isPast();
+                $ttl      = $esPasado ? now()->addHours(8) : now()->addMinutes(30);
+                Cache::put($cacheKey, $result, $ttl);
 
                 $this->sendEvent('done', [
                     'cache_key' => $cacheKey,
