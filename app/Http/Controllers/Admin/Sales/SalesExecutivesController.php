@@ -28,9 +28,13 @@ class SalesExecutivesController extends Controller
         $dateTo   = Carbon::create($year, $month, 1)->endOfMonth()->format('Y-m-d H:i:s');
 
         $executives = $odoo->getExecutives();
+        $userIds    = collect($executives)->pluck('id')->all();
 
-        $executives = collect($executives)->map(function ($exec) use ($odoo, $dateFrom, $dateTo) {
-            $metrics    = $odoo->getMetricsByExecutive($exec['id'], $dateFrom, $dateTo);
+        // 4 llamadas totales para todos los ejecutivos en lugar de 4 × N
+        $bulkMetrics = $odoo->getMetricsForAllExecutives($userIds, $dateFrom, $dateTo);
+
+        $executives = collect($executives)->map(function ($exec) use ($bulkMetrics) {
+            $metrics    = $bulkMetrics[$exec['id']] ?? ['leads' => 0, 'won' => 0, 'pipeline' => 0, 'noContact' => 0];
             $totalOport = ($metrics['leads'] ?? 0) + ($metrics['won'] ?? 0);
             $winRate    = $totalOport > 0
                 ? round(($metrics['won'] / $totalOport) * 100, 1)

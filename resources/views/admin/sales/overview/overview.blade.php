@@ -43,6 +43,18 @@
                 </div>
             </div>
 
+            {{-- ── AUTO-ROTATE INDICATOR ───────────────────── --}}
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">
+                    <span class="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse"></span>
+                    Auto
+                </span>
+                <div class="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full h-1 overflow-hidden">
+                    <div id="rotate-bar" class="h-1 rounded-full bg-violet-400 transition-none" style="width:0%"></div>
+                </div>
+                <span class="text-xs tabular-nums text-gray-400 dark:text-gray-500 w-8 text-right" id="rotate-countdown">5:00</span>
+            </div>
+
             {{-- ── KPI CARDS ────────────────────────────────── --}}
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="kpi-cards">
                 @for($i = 0; $i < 4; $i++)
@@ -146,24 +158,33 @@
                         <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Distribución OTF vs MRC</h2>
                         <p class="text-xs text-gray-400 mt-0.5 periodo-label">—</p>
                     </div>
-                    <div class="flex items-center gap-6" style="height:200px">
-                        <div class="relative flex-shrink-0 animate-pulse" id="skel-dona" style="width:180px;height:180px;">
+                    <div class="flex flex-col items-center gap-4">
+                        {{-- Skeleton donut --}}
+                        <div class="relative animate-pulse" id="skel-dona" style="width:210px;height:210px">
                             <div class="w-full h-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <div class="w-24 h-24 rounded-full bg-white dark:bg-gray-800"></div>
+                                <div class="rounded-full bg-white dark:bg-gray-800" style="width:118px;height:118px"></div>
                             </div>
                         </div>
-                        <div class="relative flex-shrink-0 hidden" style="width:180px;height:180px;">
-                            <canvas id="chartDona" style="width:180px;height:180px;"></canvas>
+                        {{-- Donut real --}}
+                        <div class="relative hidden" id="dona-chart-wrap" style="width:210px;height:210px">
+                            <canvas id="chartDona"></canvas>
                             <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                 <p class="text-xs text-gray-400" id="dona-label">Total</p>
-                                <p class="text-base font-bold text-gray-900 dark:text-gray-100" id="dona-total">—</p>
+                                <p class="text-sm font-bold text-gray-900 dark:text-gray-100" id="dona-total">—</p>
                             </div>
                         </div>
-                        <div class="flex-1 space-y-3" id="dona-legend">
-                            <div class="animate-pulse space-y-3">
-                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                        {{-- Leyenda: 2 tarjetas, label + monto juntos --}}
+                        <div class="w-full grid grid-cols-2 gap-3" id="dona-legend">
+                            <div class="animate-pulse rounded-xl border border-gray-100 dark:border-gray-700 p-3 space-y-2">
+                                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+                                <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+                            </div>
+                            <div class="animate-pulse rounded-xl border border-gray-100 dark:border-gray-700 p-3 space-y-2">
+                                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+                                <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
                             </div>
                         </div>
                     </div>
@@ -218,6 +239,15 @@
 
     let currentMode = 'mes';
 
+    // ── Cache & auto-rotate ───────────────────────────────────
+    const ROTATE_MODES    = ['mes', 'mes_actual', 'acumulado'];
+    const ROTATE_INTERVAL = 5 * 60 * 1000; // 5 minutos en ms
+    const dataCache       = {};
+    let   rotateIndex     = 0;
+    let   rotateTimer     = null;
+    let   progressTimer   = null;
+    let   rotateStart     = null;
+
     // ── Formatters ────────────────────────────────────────────
     const fmtFull = n => '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const fmtK    = n => {
@@ -234,7 +264,7 @@
 
     function swapDona() {
         document.getElementById('skel-dona')?.classList.add('hidden');
-        document.getElementById('chartDona')?.closest('div.relative')?.classList.remove('hidden');
+        document.getElementById('dona-chart-wrap')?.classList.remove('hidden');
     }
 
     let charts = {};
@@ -312,7 +342,7 @@
         document.getElementById('kpi-cards').innerHTML = `
             ${kpiCard('Total OTF', fmtFull(totalOtf), 'One-Time Fee · '+periodoComisiones, 'orange', `<path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>`)}
             ${kpiCard('Total MRC', fmtFull(totalMrc), 'Monthly Recurring · '+periodoComisiones, 'teal', `<path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>`)}
-            ${kpiCard('Total comisiones', fmtFull(totalComis), 'OTF + MRC · '+periodoComisiones, 'violet', `<path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>`)}
+            ${kpiCard('Total facturado', fmtFull(totalComis), 'OTF + MRC · '+periodoComisiones, 'violet', `<path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>`)}
             ${kpiCard('Órdenes', cantidadOrd, 'Con comisión registrada · '+periodoComisiones, 'blue', `<path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>`, true)}
         `;
 
@@ -340,14 +370,24 @@
             return { name, short:o.short, initials:o.initials, image:o.image, otf:o.revenue, mrc:m.revenue, total:o.revenue+m.revenue, cantidad:o.cantidad+m.cantidad };
         }).sort((a,b)=>b.total-a.total);
 
+        const pctOtf = totalComis > 0 ? (totalOtf / totalComis * 100).toFixed(1) : '0.0';
+        const pctMrc = totalComis > 0 ? (totalMrc / totalComis * 100).toFixed(1) : '0.0';
         document.getElementById('dona-legend').innerHTML = `
-            <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm flex-shrink-0" style="background:#f97316"></span><span class="text-sm text-gray-600 dark:text-gray-300">OTF</span></div>
-                <div class="text-right"><p class="text-sm font-semibold text-gray-900 dark:text-gray-100">${fmtFull(totalOtf)}</p>${totalComis>0?`<p class="text-xs text-gray-400">${(totalOtf/totalComis*100).toFixed(1)}%</p>`:''}</div>
+            <div style="padding:12px 14px;border-radius:12px;border:1px solid ${isDark?'#374151':'#fed7aa'};background:${isDark?'rgba(249,115,22,0.07)':'#fff7ed'}">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+                    <span style="width:10px;height:10px;border-radius:2px;background:#f97316;display:inline-block;flex-shrink:0"></span>
+                    <span style="font-size:11px;font-weight:700;color:${isDark?'#fb923c':'#ea580c'};letter-spacing:.04em;text-transform:uppercase">OTF</span>
+                </div>
+                <p style="font-size:14px;font-weight:700;color:${isDark?'#f1f5f9':'#111827'};margin:0 0 3px;line-height:1.2">${fmtFull(totalOtf)}</p>
+                <p style="font-size:11px;color:${isDark?'#6b7280':'#9ca3af'};margin:0">${pctOtf}% del total</p>
             </div>
-            <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm flex-shrink-0" style="background:#14b8a6"></span><span class="text-sm text-gray-600 dark:text-gray-300">MRC</span></div>
-                <div class="text-right"><p class="text-sm font-semibold text-gray-900 dark:text-gray-100">${fmtFull(totalMrc)}</p>${totalComis>0?`<p class="text-xs text-gray-400">${(totalMrc/totalComis*100).toFixed(1)}%</p>`:''}</div>
+            <div style="padding:12px 14px;border-radius:12px;border:1px solid ${isDark?'#374151':'#99f6e4'};background:${isDark?'rgba(20,184,166,0.07)':'#f0fdfa'}">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+                    <span style="width:10px;height:10px;border-radius:2px;background:#14b8a6;display:inline-block;flex-shrink:0"></span>
+                    <span style="font-size:11px;font-weight:700;color:${isDark?'#2dd4bf':'#0f766e'};letter-spacing:.04em;text-transform:uppercase">MRC</span>
+                </div>
+                <p style="font-size:14px;font-weight:700;color:${isDark?'#f1f5f9':'#111827'};margin:0 0 3px;line-height:1.2">${fmtFull(totalMrc)}</p>
+                <p style="font-size:11px;color:${isDark?'#6b7280':'#9ca3af'};margin:0">${pctMrc}% del total</p>
             </div>`;
 
         document.getElementById('dona-total').textContent = fmtFull(totalComis);
@@ -387,13 +427,35 @@
         destroyChart('dona');
         charts.dona = new Chart(document.getElementById('chartDona'), {
             type: 'doughnut',
-            data: { labels:['OTF','MRC'], datasets:[{ data:[totalOtf,totalMrc], backgroundColor:['rgba(249,115,22,0.85)','rgba(20,184,166,0.85)'], borderWidth:3, borderColor: isDark?'#1f2937':'#ffffff', hoverOffset:8 }] },
-            options: { responsive:false, maintainAspectRatio:false, cutout:'55%',
-                plugins: { legend:{display:false}, tooltip:{ callbacks:{ label: ctx=>` ${ctx.label}: ${fmtFull(ctx.raw)}` }} },
-                onHover: (e,els) => {
-                    const lbl=document.getElementById('dona-label'), tot=document.getElementById('dona-total');
-                    if(els.length){ lbl.textContent=['OTF','MRC'][els[0].index]; tot.textContent=fmtFull([totalOtf,totalMrc][els[0].index]); }
-                    else{ lbl.textContent='Total'; tot.textContent=fmtFull(totalComis); }
+            data: {
+                labels: ['OTF', 'MRC'],
+                datasets: [{
+                    data: [totalOtf, totalMrc],
+                    backgroundColor: ['rgba(249,115,22,0.88)', 'rgba(20,184,166,0.88)'],
+                    borderWidth: 3,
+                    borderColor: isDark ? '#1f2937' : '#ffffff',
+                    hoverOffset: 10,
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '64%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmtFull(ctx.raw)}` } }
+                },
+                onHover: (e, els) => {
+                    const lbl = document.getElementById('dona-label');
+                    const tot = document.getElementById('dona-total');
+                    if (els.length) {
+                        lbl.textContent = ['OTF', 'MRC'][els[0].index];
+                        tot.textContent = fmtFull([totalOtf, totalMrc][els[0].index]);
+                    } else {
+                        lbl.textContent = 'Total';
+                        tot.textContent = fmtFull(totalComis);
+                    }
                 }
             }
         });
@@ -448,8 +510,15 @@
         </div>`;
     }
 
-    // ── Modo ──────────────────────────────────────────────────
+    // ── Modo (clic manual: aplica + reinicia temporizador) ────
     function setMode(mode) {
+        rotateIndex = ROTATE_MODES.indexOf(mode);
+        applyMode(mode);
+        startAutoRotate();
+    }
+
+    // ── Aplica modo sin resetear temporizador (usado por rotación) ──
+    function applyMode(mode) {
         currentMode = mode;
         const active   = 'px-4 py-2 rounded-lg text-sm font-medium transition border bg-violet-600 text-white border-violet-600';
         const inactive = 'px-4 py-2 rounded-lg text-sm font-medium transition border bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
@@ -459,8 +528,38 @@
         loadData();
     }
 
-    // ── Fetch ─────────────────────────────────────────────────
+    // ── Auto-rotate ───────────────────────────────────────────
+    function startAutoRotate() {
+        clearInterval(rotateTimer);
+        clearInterval(progressTimer);
+        rotateStart   = Date.now();
+        updateProgress();
+        rotateTimer   = setInterval(() => {
+            rotateIndex = (rotateIndex + 1) % ROTATE_MODES.length;
+            applyMode(ROTATE_MODES[rotateIndex]);
+            rotateStart = Date.now();
+        }, ROTATE_INTERVAL);
+        progressTimer = setInterval(updateProgress, 1000);
+    }
+
+    function updateProgress() {
+        if (!rotateStart) return;
+        const elapsed = Date.now() - rotateStart;
+        const pct     = Math.min((elapsed / ROTATE_INTERVAL) * 100, 100);
+        const bar     = document.getElementById('rotate-bar');
+        if (bar) bar.style.width = pct + '%';
+        const secs = Math.max(0, Math.round((ROTATE_INTERVAL - elapsed) / 1000));
+        const lbl  = document.getElementById('rotate-countdown');
+        if (lbl) lbl.textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0');
+    }
+
+    // ── Fetch con cache ───────────────────────────────────────
     function loadData() {
+        if (dataCache[currentMode]) {
+            renderAll(dataCache[currentMode]);
+            return;
+        }
+
         document.getElementById('kpi-cards').innerHTML = `
             ${[0,1,2,3].map(() => `
             <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5 flex flex-col gap-3 animate-pulse">
@@ -475,7 +574,10 @@
 
         fetch(`{{ route('admin.sales.overview.commissions') }}?mode=${currentMode}`)
             .then(r => r.json())
-            .then(renderAll)
+            .then(data => {
+                dataCache[currentMode] = data;
+                renderAll(data);
+            })
             .catch(() => {
                 document.getElementById('kpi-cards').innerHTML =
                     '<p class="col-span-4 text-center text-sm text-red-500 py-8">Error cargando datos. Recarga la página.</p>';
@@ -483,6 +585,18 @@
     }
 
     // ── Init ──────────────────────────────────────────────────
-    setMode('mes');
+    // Carga el modo inicial y arranca la rotación
+    applyMode('mes');
+    startAutoRotate();
+
+    // Precarga los otros dos modos en segundo plano para que la rotación sea instantánea
+    setTimeout(() => {
+        ['mes_actual', 'acumulado'].forEach(mode => {
+            fetch(`{{ route('admin.sales.overview.commissions') }}?mode=${mode}`)
+                .then(r => r.json())
+                .then(data => { dataCache[mode] = data; })
+                .catch(() => {});
+        });
+    }, 1500);
     </script>
 </x-app-layout>

@@ -38,23 +38,18 @@
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <div class="flex items-center gap-5">
                     <div class="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold shrink-0
-                        {{ $user->role === 'admin' || $user->roleModel ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400' }}">
+                        {{ $user->roleModel ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400' }}">
                         {{ strtoupper(substr($user->name, 0, 2)) }}
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-3 flex-wrap">
                             <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">{{ $user->name }}</h3>
-                            {{-- ✅ Badge de rol dinámico --}}
                             @if($user->roleModel)
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800">
                                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                                     </svg>
                                     {{ $user->roleModel->nombre }}
-                                </span>
-                            @elseif($user->role)
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
-                                    {{ ucfirst($user->role) }}
                                 </span>
                             @else
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 border border-yellow-100 dark:border-yellow-800">
@@ -136,7 +131,7 @@
                         @endforeach
                     </div>
                 </div>
-                @elseif(!$user->roleModel && !$user->role)
+                @else
                 <div class="px-6 py-4">
                     <div class="flex items-center gap-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-100 dark:border-yellow-800 rounded-lg text-sm text-yellow-700 dark:text-yellow-400">
                         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
