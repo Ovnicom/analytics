@@ -42,17 +42,24 @@ class SalesOverviewController extends Controller
 
         $userImages = [];
         if (!empty($vendedorIds)) {
-            $users = $commissions->odoo()->execute('res.users', 'search_read',
-                [[['id', 'in', $vendedorIds]]],
-                ['fields' => ['id', 'image_128'], 'limit' => 0]
-            ) ?? [];
+            sort($vendedorIds);
+            $cacheKey = 'odoo:user_images:' . md5(implode(',', $vendedorIds));
 
-            foreach ($users as $u) {
-                $img = $u['image_128'] ?? null;
-                $userImages[$u['id']] = ($img && !str_starts_with($img, 'PD94'))
-                    ? 'data:image/png;base64,' . $img
-                    : null;
-            }
+            $userImages = \Illuminate\Support\Facades\Cache::remember($cacheKey, 604800, function () use ($commissions, $vendedorIds) {
+                $users = $commissions->odoo()->execute('res.users', 'search_read',
+                    [[['id', 'in', $vendedorIds]]],
+                    ['fields' => ['id', 'image_128'], 'limit' => 0]
+                ) ?? [];
+
+                $map = [];
+                foreach ($users as $u) {
+                    $img = $u['image_128'] ?? null;
+                    $map[$u['id']] = ($img && !str_starts_with($img, 'PD94'))
+                        ? 'data:image/png;base64,' . $img
+                        : null;
+                }
+                return $map;
+            });
         }
 
         $toJs = function ($byVendedor, string $tipo) use ($userImages): array {
