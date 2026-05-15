@@ -535,6 +535,21 @@ class OdooService
         });
     }
 
+    // ── Sync: todos los partners empresa con nombre y número de cuenta ──
+    public function fetchAllPartnersForSync(): array
+    {
+        return Cache::remember('odoo:sync:partners', 300, function () {
+            return $this->execute('res.partner', 'search_read',
+                [[['is_company', '=', true], ['partner_state', '!=', 'cancel'], ['x_studio_tipo_de_cliente', '!=', 'Residencial']]],
+                [
+                    'fields' => ['complete_name', 'account_no'],
+                    'order'  => 'complete_name asc',
+                    'limit'  => 0,
+                ]
+            ) ?? [];
+        });
+    }
+
     // ── Invalidar caché ───────────────────────────────────────
     public function clearCache(): void
     {

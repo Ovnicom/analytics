@@ -33,6 +33,16 @@
                         Usuarios
                     </a>
                     @endif
+
+                    <a href="{{ route('admin.sincronizar.index') }}"
+                       style="font-size:.82rem; font-weight:500; padding:.35rem .75rem; border-radius:.5rem; transition:all .15s;
+                              color: {{ request()->routeIs('admin.sincronizar.*') ? 'var(--ovni-orange)' : 'var(--text-secondary)' }};
+                              background: {{ request()->routeIs('admin.sincronizar.*') ? 'rgba(232,97,10,.09)' : 'transparent' }};"
+                       onmouseenter="if(!this.getAttribute('data-active')) { this.style.background='var(--surface-hover)'; this.style.color='var(--text-primary)'; }"
+                       onmouseleave="if(!this.getAttribute('data-active')) { this.style.background='transparent'; this.style.color='var(--text-secondary)'; }"
+                       {{ request()->routeIs('admin.sincronizar.*') ? 'data-active=true' : '' }}>
+                        Sincronizar
+                    </a>
                 </div>
             </div>
 
@@ -151,6 +161,13 @@
                 Usuarios
             </a>
             @endif
+            <a href="{{ route('admin.sincronizar.index') }}"
+               style="display:block;padding:.5rem .75rem;border-radius:.5rem;font-size:.85rem;font-weight:500;
+                      color:var(--text-secondary);text-decoration:none"
+               onmouseenter="this.style.background='var(--surface-hover)'"
+               onmouseleave="this.style.background='transparent'">
+                Sincronizar
+            </a>
         </div>
 
         <div class="border-t border-gray-200 dark:border-gray-700 px-4 pt-3 pb-4">

@@ -300,6 +300,55 @@ class MspService
     }
 
     // -------------------------------------------------------------------------
+    // Customers
+    // -------------------------------------------------------------------------
+
+    public function fetchCustomers(): array
+    {
+        $all      = [];
+        $endpoint = '/customers?$top=1000&$select=CustomerId,CustomerName,ReferenceId,RmReferenceId';
+
+        while ($endpoint) {
+            $response = Http::withHeaders([
+                'Authorization' => $this->authHeader,
+            ])->timeout(60)->get($this->baseUrl . $endpoint);
+
+            if ($response->failed()) {
+                throw new \RuntimeException(
+                    "Error MSP API [{$response->status()}] en /customers: " . $response->body()
+                );
+            }
+
+            $body  = $response->json();
+            $items = $body['value'] ?? [];
+            $all   = array_merge($all, $items);
+
+            // OData pagination
+            $next = $body['@odata.nextLink'] ?? null;
+            $endpoint = $next ? (str_replace($this->baseUrl, '', $next)) : null;
+        }
+
+        return $all;
+    }
+
+    public function updateCustomer(string $customerId, string $customerName, string $referenceId): void
+    {
+        $response = Http::withHeaders([
+            'Authorization' => $this->authHeader,
+            'Accept'        => 'application/json;odata.metadata=minimal;odata.streaming=true',
+            'Content-Type'  => 'application/json;odata.metadata=minimal;odata.streaming=true',
+        ])->timeout(30)->patch($this->baseUrl . '/customers/' . $customerId, [
+            'referenceId' => $referenceId,
+        ]);
+
+        if ($response->failed()) {
+            throw new \RuntimeException(
+                "Error MSP update [{$response->status()}] cliente {$customerId}: " . $response->body()
+            );
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // HTTP Helper
     // -------------------------------------------------------------------------
 

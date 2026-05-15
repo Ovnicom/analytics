@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Cache;
 
 class CommissionService
 {
-    const CACHE_TTL = 300;
+    const CACHE_TTL = 86400; // 1 día
 
     const MONTH_LABELS = [
         1 => 'Enero',    2 => 'Febrero',   3 => 'Marzo',     4 => 'Abril',

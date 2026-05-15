@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\SurveyTypeController;
 use App\Http\Controllers\Admin\SurveyController;
 use App\Http\Controllers\Admin\GlpiController;
 use App\Http\Controllers\Auth\TwoFactorController;
+use App\Http\Controllers\Admin\SincronizarController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Públicas ─────────────────────────────────────────────────────────────────
@@ -167,6 +168,18 @@ Route::middleware(['auth', 'module:sales'])
         Route::post('/reassign/export',[SalesReassignController::class,   'export'])->name('reassign.export');
         Route::get('/overview',             [SalesOverviewController::class, 'index'])       ->name('overview');
         Route::get('/overview/commissions', [SalesOverviewController::class, 'commissions']) ->name('overview.commissions');
+    });
+
+// ─── Sincronizar ─────────────────────────────────────────────────────────────
+Route::middleware(['auth'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('sincronizar',                   [SincronizarController::class, 'coincidencias'])->name('sincronizar.index');
+        Route::get('sincronizar/sin-coincidencia', [SincronizarController::class, 'sinCoincidencia'])->name('sincronizar.sin-coincidencia');
+        Route::get('sincronizar/ejecutar',          fn() => view('admin.sincronizar.ejecutar'))->name('sincronizar.ejecutar');
+        Route::post('sincronizar/preview',          [SincronizarController::class, 'preview'])->name('sincronizar.preview');
+        Route::post('sincronizar/ejecutar',         [SincronizarController::class, 'ejecutar'])->name('sincronizar.ejecutar.post');
     });
 
 // ─── 2FA Setup (primera vez) ──────────────────────────────────────────────────
