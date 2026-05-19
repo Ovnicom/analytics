@@ -318,14 +318,21 @@ class MspReportController extends Controller
         $enviados = 0;
         $errores  = [];
 
+        // Pre-cargar todos los clientes de una vez para evitar N queries dentro del loop.
+        $customerNames = collect($request->input('clientes'))->pluck('customer_name');
+        $clientesMap   = MspClient::whereIn('customer_name', $customerNames)
+            ->get()
+            ->keyBy('customer_name');
+
         foreach ($request->input('clientes') as $cliente) {
             $result = $this->sendReportEmail(
-                customer:    $cliente['customer_name'],
-                email:       $cliente['email'],
-                periodo:     $periodo,
-                subject:     $subject,
-                mensaje:     $mensaje,
-                plantillaId: $plantillaId,
+                customer:     $cliente['customer_name'],
+                email:        $cliente['email'],
+                periodo:      $periodo,
+                subject:      $subject,
+                mensaje:      $mensaje,
+                plantillaId:  $plantillaId,
+                clienteModel: $clientesMap->get($cliente['customer_name']),
             );
 
             if ($result['success']) {
@@ -508,17 +515,18 @@ Para cualquier otra consulta responde en español de forma clara y concisa.";
      * por envío individual y masivo.
      */
     private function sendReportEmail(
-        string  $customer,
-        string  $email,
-        string  $periodo,
-        string  $subject,
-        string  $mensaje = '',
-        ?int    $plantillaId = null,
+        string      $customer,
+        string      $email,
+        string      $periodo,
+        string      $subject,
+        string      $mensaje = '',
+        ?int        $plantillaId = null,
+        ?MspClient  $clienteModel = null,
     ): array {
         try {
-            // Obtener stats y cliente para sustituir variables
             $stats   = MspReport::statsForCustomer($customer, $periodo);
-            $cliente = MspClient::where('customer_name', $customer)->first();
+            // Usa el modelo pre-cargado si viene del loop masivo; hace la query solo en envíos individuales.
+            $cliente = $clienteModel ?? MspClient::where('customer_name', $customer)->first();
 
             // Sustituir variables en asunto y mensaje
             $variables = [
@@ -549,7 +557,7 @@ Para cualquier otra consulta responde en español de forma clara y concisa.";
             }
 
             // Generar PDF
-            $logoUrl     = $this->resolveLogoUrl($customer, $periodo);
+            $logoUrl     = $this->resolveLogoUrl($customer, $periodo, $cliente);
             $ovnicomLogo = $this->getOvnicomLogo();
             $html        = view('admin.reports.msp.pdf_template',
                 compact('customer', 'stats', 'periodo', 'logoUrl', 'ovnicomLogo')
@@ -606,9 +614,9 @@ Para cualquier otra consulta responde en español de forma clara y concisa.";
         }
     }
 
-    private function resolveLogoUrl(string $customer, ?string $periodo): ?string
+    private function resolveLogoUrl(string $customer, ?string $periodo, ?MspClient $cliente = null): ?string
     {
-        $cliente = MspClient::where('customer_name', $customer)->first();
+        $cliente ??= MspClient::where('customer_name', $customer)->first();
         return $cliente?->getLogoBase64();
     }
 

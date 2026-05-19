@@ -180,6 +180,7 @@ Route::middleware(['auth'])
         Route::get('sincronizar/ejecutar',          fn() => view('admin.sincronizar.ejecutar'))->name('sincronizar.ejecutar');
         Route::post('sincronizar/preview',          [SincronizarController::class, 'preview'])->name('sincronizar.preview');
         Route::post('sincronizar/ejecutar',         [SincronizarController::class, 'ejecutar'])->name('sincronizar.ejecutar.post');
+        Route::post('sincronizar/enlazar',          [SincronizarController::class, 'enlazar'])->name('sincronizar.enlazar');
     });
 
 // ─── 2FA Setup (primera vez) ──────────────────────────────────────────────────

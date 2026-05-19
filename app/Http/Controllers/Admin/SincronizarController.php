@@ -34,6 +34,45 @@ class SincronizarController extends Controller
         return view('admin.sincronizar.sin-coincidencia', compact('odooSinMatch', 'mspTodos'));
     }
 
+    public function enlazar(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'pares'                 => 'required|array|min:1',
+            'pares.*.customer_id'   => 'required|string',
+            'pares.*.customer_name' => 'required|string',
+            'pares.*.numero_cuenta' => 'required|string',
+        ]);
+
+        $msp     = new MspService();
+        $ok      = 0;
+        $errores = [];
+
+        foreach ($request->input('pares') as $par) {
+            try {
+                $msp->updateCustomer(
+                    $par['customer_id'],
+                    $par['customer_name'],
+                    $par['numero_cuenta'],
+                );
+                $ok++;
+            } catch (\Throwable $e) {
+                $msg = $e->getMessage();
+                if (str_contains($msg, 'permission to delete')) {
+                    $msg = 'Sin permiso MSP RM';
+                } elseif (str_contains($msg, 'already have a customer')) {
+                    $msg = 'Nombre duplicado en MSP';
+                }
+                $errores[] = "{$par['customer_name']}: {$msg}";
+            }
+        }
+
+        return response()->json([
+            'ok'        => $ok > 0,
+            'enlazados' => $ok,
+            'errores'   => $errores,
+        ]);
+    }
+
     public function preview()
     {
         ['filas' => $filas] = $this->buildFilas();

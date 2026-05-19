@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Services\GlpiService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Exception;
 
 class GlpiController extends Controller
@@ -42,61 +43,58 @@ class GlpiController extends Controller
         foreach ($assetTypes as $type => $label) {
             try {
                 if ($type === 'NetworkEquipment') {
-                    // ── 1. Traer todos los tipos de equipo de red ──────────────
-                    $typesResult = $this->glpi->getAllItems('NetworkEquipmentType', [
-                        'range' => '0-199',
-                        'sort'  => 'name',
-                        'order' => 'ASC',
+                    // Una sola llamada: todos los equipos con dropdowns expandidos.
+                    // Antes: 2 llamadas por cada tipo (count + deposito) → N tipos = 2N requests.
+                    $allResult = $this->glpi->getAllItems('NetworkEquipment', [
+                        'range'            => '0-4999',
+                        'expand_dropdowns' => true,
+                        'get_hateoas'      => false,
                     ]);
 
-                    $grouped = [];
-                    foreach ($typesResult['items'] as $equipType) {
-                        try {
-                            // ── 2. Contar equipos de cada tipo ─────────────────
-                            $count = $this->glpi->searchItems('NetworkEquipment', [
-                                ['field' => 23, 'searchtype' => 'equals', 'value' => $equipType['id']],
-                            ], ['range' => '0-0']);
+                    $allItems = $allResult['items'] ?? [];
+                    $grouped  = [];
 
-                            $total = $count['total'] ?? 0;
+                    foreach ($allItems as $item) {
+                        $typeData = $item['networkequipmenttypes_id'] ?? null;
+                        $typeId   = is_array($typeData) ? ($typeData['id'] ?? 0) : 0;
+                        $typeName = is_array($typeData) ? ($typeData['name'] ?? 'Sin tipo') : ($typeData ?: 'Sin tipo');
 
-                            if ($total > 0) {
-                                // ── 3. Contar cuántos están en depósito ────────
-                                $deposito = $this->glpi->searchItems('NetworkEquipment', [
-                                    ['field' => 23, 'searchtype' => 'equals',   'value' => $equipType['id']],
-                                    ['field' => 31, 'searchtype' => 'contains', 'value' => 'dep',
-                                     'link'  => 'AND'],
-                                ], ['range' => '0-0']);
+                        if (!isset($grouped[$typeId])) {
+                            $grouped[$typeId] = [
+                                'id'          => $typeId,
+                                'nombre'      => $typeName,
+                                'total'       => 0,
+                                'en_deposito' => 0,
+                            ];
+                        }
 
-                                $grouped[] = [
-                                    'id'          => $equipType['id'],
-                                    'nombre'      => $equipType['name'],
-                                    'total'       => $total,
-                                    'en_deposito' => $deposito['total'] ?? 0,
-                                ];
-                            }
-                        } catch (Exception) {
-                            // Si falla un tipo, continuar con el siguiente
+                        $grouped[$typeId]['total']++;
+
+                        $estado       = $item['states_id'] ?? null;
+                        $estadoNombre = strtolower(is_array($estado) ? ($estado['name'] ?? '') : ($estado ?? ''));
+                        if (str_contains($estadoNombre, 'dep')) {
+                            $grouped[$typeId]['en_deposito']++;
                         }
                     }
 
-                    // Total general de NetworkEquipment
-                    $totalResult = $this->glpi->getAllItems($type, ['range' => '0-0']);
+                    $grouped = array_values(array_filter($grouped, fn($g) => $g['total'] > 0));
 
                     $summary[$type] = [
                         'label'   => $label,
-                        'total'   => $totalResult['total'],
+                        'total'   => $allResult['total'] ?: count($allItems),
                         'grouped' => $grouped,
                     ];
 
                 } else {
-                    $result = $this->glpi->getAllItems($type, ['range' => '0-0']);
+                    $result         = $this->glpi->getAllItems($type, ['range' => '0-0']);
                     $summary[$type] = [
                         'label'   => $label,
                         'total'   => $result['total'],
                         'grouped' => null,
                     ];
                 }
-            } catch (Exception) {
+            } catch (Exception $e) {
+                Log::error("GLPI index [{$type}]: " . $e->getMessage());
                 $summary[$type] = ['label' => $label, 'total' => 0, 'grouped' => null];
             }
         }
