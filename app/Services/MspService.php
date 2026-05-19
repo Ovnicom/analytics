@@ -305,30 +305,29 @@ class MspService
 
     public function fetchCustomers(): array
     {
-        $all      = [];
-        $endpoint = '/customers?$top=1000&$select=CustomerId,CustomerName,ReferenceId,RmReferenceId';
+        return Cache::remember('msp:customers:sync', 300, function () {
+            $all      = [];
+            $endpoint = '/customers?$top=1000&$select=CustomerId,CustomerName,ReferenceId,RmReferenceId';
 
-        while ($endpoint) {
-            $response = Http::withHeaders([
-                'Authorization' => $this->authHeader,
-            ])->timeout(60)->get($this->baseUrl . $endpoint);
+            while ($endpoint) {
+                $response = Http::withHeaders([
+                    'Authorization' => $this->authHeader,
+                ])->timeout(60)->get($this->baseUrl . $endpoint);
 
-            if ($response->failed()) {
-                throw new \RuntimeException(
-                    "Error MSP API [{$response->status()}] en /customers: " . $response->body()
-                );
+                if ($response->failed()) {
+                    throw new \RuntimeException(
+                        "Error MSP API [{$response->status()}] en /customers: " . $response->body()
+                    );
+                }
+
+                $body     = $response->json();
+                $all      = array_merge($all, $body['value'] ?? []);
+                $next     = $body['@odata.nextLink'] ?? null;
+                $endpoint = $next ? str_replace($this->baseUrl, '', $next) : null;
             }
 
-            $body  = $response->json();
-            $items = $body['value'] ?? [];
-            $all   = array_merge($all, $items);
-
-            // OData pagination
-            $next = $body['@odata.nextLink'] ?? null;
-            $endpoint = $next ? (str_replace($this->baseUrl, '', $next)) : null;
-        }
-
-        return $all;
+            return $all;
+        });
     }
 
     public function updateCustomer(string $customerId, string $customerName, string $referenceId): void

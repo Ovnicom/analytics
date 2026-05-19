@@ -77,13 +77,13 @@
 
         @forelse($roles as $role)
         @php
-            $modulos    = $role->modulos ?? [];
-            $maxVisible = 3;
-            $visible    = array_slice($modulos, 0, $maxVisible);
-            $restantes  = count($modulos) - $maxVisible;
-            $initials   = strtoupper(substr($role->nombre, 0, 2));
-            $pct        = count($modulos) > 0 ? (count($modulos) / count(config('modules'))) * 100 : 0;
-            $canDelete  = $role->users_count === 0;
+            $roleModulos = $role->modulos ?? [];
+            $maxVisible  = 3;
+            $visible     = array_slice($roleModulos, 0, $maxVisible);
+            $restantes   = count($roleModulos) - $maxVisible;
+            $initials    = strtoupper(substr($role->nombre, 0, 2));
+            $pct         = count($roleModulos) > 0 ? (count($roleModulos) / count($modulos)) * 100 : 0;
+            $canDelete   = $role->users_count === 0;
         @endphp
 
         <div class="rp-role-card">
