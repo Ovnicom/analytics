@@ -4,10 +4,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\SurveyApiController;
 use App\Http\Controllers\Api\Sales\CommissionsController;
 use App\Http\Controllers\Api\MspClientController;
+use App\Http\Controllers\Api\MspReportApiController;
 
 // ── Encuestas (webhook público — autenticado por token en URL) ────────────────
 Route::middleware('throttle:30,1')
     ->post('/surveys/{token}', [SurveyApiController::class, 'receive']);
+
+// ── MSP Reports — PDF por cliente y período ──────────────────────────────────
+Route::middleware(['auth:sanctum', 'throttle:20,1'])
+    ->get('/v1/reports/msp/pdf', [MspReportApiController::class, 'download']);
 
 // ── MSP Clientes ─────────────────────────────────────────────────────────────
 Route::middleware(['auth:sanctum', 'throttle:10,1'])
