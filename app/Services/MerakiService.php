@@ -173,12 +173,24 @@ class MerakiService
         );
     }
 
-    /** Full license list for an organization. */
+    /**
+     * Full license list for an organization.
+     * Devuelve [] si la org usa co-termination (no per-device licensing).
+     */
     public function getLicenses(string $orgId): array
     {
-        return Cache::remember("meraki_licenses_{$orgId}", now()->addHours(48), fn () =>
-            $this->get("/organizations/{$orgId}/licenses")
-        );
+        return Cache::remember("meraki_licenses_{$orgId}", now()->addHours(48), function () use ($orgId) {
+            try {
+                return $this->get("/organizations/{$orgId}/licenses");
+            } catch (Exception $e) {
+                // 400 = org usa co-termination, no per-device licensing → sin licencias individuales
+                if (str_contains($e->getMessage(), '400') || str_contains($e->getMessage(), 'per-device')) {
+                    \Illuminate\Support\Facades\Log::info("Meraki org [{$orgId}] usa co-termination licensing, se omiten licencias individuales.");
+                    return [];
+                }
+                throw $e;
+            }
+        });
     }
 
     // ─── Aggregated (all orgs) ────────────────────────────────────────────────
@@ -228,11 +240,11 @@ class MerakiService
 
         foreach ($organizations as $org) {
             $orgId = $org['id'];
-            $this->getDevices($orgId);
-            $this->getDeviceStatuses($orgId);
-            $this->getNetworks($orgId);
-            $this->getUplinkStatuses($orgId);
-            $this->getLicenses($orgId);
+            try { $this->getDevices($orgId); }        catch (Exception $e) { \Illuminate\Support\Facades\Log::warning("warmCache devices [{$orgId}]: " . $e->getMessage()); }
+            try { $this->getDeviceStatuses($orgId); } catch (Exception $e) { \Illuminate\Support\Facades\Log::warning("warmCache statuses [{$orgId}]: " . $e->getMessage()); }
+            try { $this->getNetworks($orgId); }       catch (Exception $e) { \Illuminate\Support\Facades\Log::warning("warmCache networks [{$orgId}]: " . $e->getMessage()); }
+            try { $this->getUplinkStatuses($orgId); } catch (Exception $e) { \Illuminate\Support\Facades\Log::warning("warmCache uplinks [{$orgId}]: " . $e->getMessage()); }
+            try { $this->getLicenses($orgId); }       catch (Exception $e) { \Illuminate\Support\Facades\Log::warning("warmCache licenses [{$orgId}]: " . $e->getMessage()); }
         }
 
         // Regenerar el caché global combinado
