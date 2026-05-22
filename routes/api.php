@@ -3,9 +3,17 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\SurveyApiController;
 use App\Http\Controllers\Api\Sales\CommissionsController;
+use App\Http\Controllers\Api\AuthTokenController;
 use App\Http\Controllers\Api\MspClientController;
 use App\Http\Controllers\Api\MspCustomerController;
 use App\Http\Controllers\Api\MspReportApiController;
+
+// ── Auth — emitir / revocar Bearer tokens ────────────────────────────────────
+Route::middleware('throttle:5,1')
+    ->post('/v1/auth/token', [AuthTokenController::class, 'issue']);
+
+Route::middleware(['auth:sanctum', 'throttle:10,1'])
+    ->delete('/v1/auth/token', [AuthTokenController::class, 'revoke']);
 
 // ── Encuestas (webhook público — autenticado por token en URL) ────────────────
 Route::middleware('throttle:30,1')
