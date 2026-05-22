@@ -102,8 +102,44 @@ class MspReportController extends Controller
         $periodos    = MspReport::uniquePeriodos();
         $clienteInfo = MspClient::where('customer_name', $customer)->first();
 
+        $clienteInfo = $this->resolveCustomerId($clienteInfo);
+
         return view('admin.reports.msp.cliente_detalle',
             compact('customer', 'stats', 'periodos', 'periodo', 'clienteInfo'));
+    }
+
+    protected function resolveCustomerId(?MspClient $cliente): ?MspClient
+    {
+        if (!$cliente) return null;
+
+        try {
+            $msp = app(\App\Services\MspService::class);
+
+            if ($cliente->customer_id) {
+                // Ya tenemos el ID — consulta directa
+                $results = $msp->findCustomerById($cliente->customer_id);
+            } elseif ($cliente->numero_cuenta) {
+                // Primera vez — buscar por RUC y guardar el CustomerId
+                $results = $msp->findCustomerByRuc($cliente->numero_cuenta);
+                if (!empty($results[0]['CustomerId'])) {
+                    $cliente->update(['customer_id' => $results[0]['CustomerId']]);
+                    $cliente->refresh();
+                }
+            } else {
+                return $cliente;
+            }
+
+            // Adjuntar datos MSP al modelo sin persistirlos
+            if (!empty($results[0])) {
+                $cliente->msp_data = $results[0];
+            }
+        } catch (\Throwable $e) {
+            Log::warning('MSP resolveCustomerId falló: ' . $e->getMessage(), [
+                'customer' => $cliente->customer_name,
+            ]);
+        }
+
+        return $cliente;
     }
 
     public function updateCliente(Request $request, string $customer)

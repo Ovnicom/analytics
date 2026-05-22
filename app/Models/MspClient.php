@@ -8,6 +8,7 @@ class MspClient extends Model
 {
     protected $fillable = [
         'customer_name',
+        'customer_id',
         'email_cliente',
         'numero_cuenta',
         'logo_path',

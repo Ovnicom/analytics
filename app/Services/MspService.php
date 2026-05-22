@@ -339,6 +339,15 @@ class MspService
         return $this->get($endpoint);
     }
 
+    public function findCustomerById(string $customerId): array
+    {
+        $filter   = "CustomerId eq '{$customerId}'";
+        $select   = 'CustomerName,PhoneMain,EmailDomain,ReferenceId,CustomerId';
+        $endpoint = '/customers?$filter=' . rawurlencode($filter) . '&$select=' . rawurlencode($select);
+
+        return $this->get($endpoint);
+    }
+
     public function updateCustomer(string $customerId, string $customerName, string $referenceId): void
     {
         $response = Http::withHeaders([
