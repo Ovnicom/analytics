@@ -49,6 +49,10 @@ class MspReportApiController extends Controller
                 ->distinct()
                 ->orderByDesc('periodo')
                 ->pluck('periodo')
+                ->map(fn($p) => [
+                    'value' => $p,
+                    'label' => MspReport::translatePeriodo($p),
+                ])
                 ->values()
                 ->toArray()
         );

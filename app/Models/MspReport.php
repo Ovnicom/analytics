@@ -128,6 +128,20 @@ class MspReport extends Model
             ->toArray();
     }
 
+    public static function translatePeriodo(string $periodo): string
+    {
+        $meses = [
+            'January'   => 'Enero',   'February'  => 'Febrero',
+            'March'     => 'Marzo',   'April'     => 'Abril',
+            'May'       => 'Mayo',    'June'      => 'Junio',
+            'July'      => 'Julio',   'August'    => 'Agosto',
+            'September' => 'Septiembre', 'October' => 'Octubre',
+            'November'  => 'Noviembre',  'December' => 'Diciembre',
+        ];
+
+        return str_replace(array_keys($meses), array_values($meses), $periodo);
+    }
+
     public function client()
     {
         return $this->belongsTo(MspClient::class, 'customer_name', 'customer_name');
