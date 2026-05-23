@@ -9,6 +9,7 @@ use App\Models\MspClient;
 use App\Models\MspUploadBatch;
 use App\Models\MspPlantilla;
 use App\Services\SharePointService;
+use App\Services\MspPdfService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -187,20 +188,12 @@ class MspReportController extends Controller
 
     public function pdfDownload(Request $request, string $customer)
     {
-        $customer    = urldecode($customer);
-        $periodo     = $request->input('periodo');
-        $stats       = MspReport::statsForCustomer($customer, $periodo);
-        $logoUrl     = $this->resolveLogoUrl($customer, $periodo);
-        $ovnicomLogo = $this->getOvnicomLogo();
+        $customer = urldecode($customer);
+        $periodo  = $request->input('periodo');
 
-        $html     = view('admin.reports.msp.pdf_template',
-            compact('customer', 'stats', 'periodo', 'logoUrl', 'ovnicomLogo')
-        )->render();
-
-        $filename = $this->buildPdfFilename($customer, $periodo);
-        $path     = storage_path("app/public/msp_pdfs/{$filename}");
-
-        $this->generatePdf($html, $path);
+        $pdf      = app(MspPdfService::class);
+        $path     = $pdf->generate($customer, $periodo, forceRegenerate: true);
+        $filename = $pdf->buildFilename($customer, $periodo);
 
         return response()->download($path, $filename);
     }
