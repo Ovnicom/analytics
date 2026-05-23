@@ -30,7 +30,7 @@
                class="px-4 py-2 rounded-lg text-sm font-medium border transition
                       {{ $periodo === $p ? 'text-white border-transparent' : 'text-gray-600 border-gray-200 hover:bg-gray-50' }}"
                style="{{ $periodo === $p ? 'background:#d4520a' : '' }}">
-                {{ $p }}
+                {{ \App\Models\MspReport::translatePeriodo($p) }}
             </a>
             @endforeach
         </div>

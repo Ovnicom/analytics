@@ -86,7 +86,7 @@
                                ? 'text-white border-transparent'
                                : 'text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700' }}"
                    style="{{ $periodo === $p ? 'background:var(--ovni-orange)' : '' }}">
-                    {{ $p }}
+                    {{ \App\Models\MspReport::translatePeriodo($p) }}
                 </a>
                 @endforeach
             </div>

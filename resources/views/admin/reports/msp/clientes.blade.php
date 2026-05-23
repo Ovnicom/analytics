@@ -14,7 +14,7 @@
                         class="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     <option value="">— Todos —</option>
                     @foreach($periodos as $p)
-                        <option value="{{ $p }}" {{ $periodo == $p ? 'selected' : '' }}>{{ $p }}</option>
+                        <option value="{{ $p }}" {{ $periodo == $p ? 'selected' : '' }}>{{ \App\Models\MspReport::translatePeriodo($p) }}</option>
                     @endforeach
                 </select>
             </div>
