@@ -11,6 +11,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Spatie\Browsershot\Browsershot;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Illuminate\Support\Facades\Cache;
 
 class MspReportApiController extends Controller
 {
@@ -53,24 +54,27 @@ class MspReportApiController extends Controller
         }
 
         try {
-            $stats       = MspReport::statsForCustomer($customer, $periodo);
-            $logoUrl     = $this->resolveLogoUrl($customer);
-            $ovnicomLogo = $this->getOvnicomLogo();
-
-            $html = view('admin.reports.msp.pdf_template',
-                compact('customer', 'stats', 'periodo', 'logoUrl', 'ovnicomLogo')
-            )->render();
-
             $filename = $this->buildFilename($customer, $periodo);
             $path     = storage_path("app/public/msp_pdfs/{$filename}");
 
-            $this->generatePdf($html, $path);
+            // Servir desde caché si ya existe el PDF (TTL 48h)
+            if (!file_exists($path)) {
+                $stats       = MspReport::statsForCustomer($customer, $periodo);
+                $logoBase64  = $this->resolveLogoBase64($customer);
+                $ovnicomLogo = $this->getOvnicomLogo();
 
-            Log::info("API PDF generado: {$filename}", [
-                'user'     => $request->user()?->email,
-                'customer' => $customer,
-                'periodo'  => $periodo,
-            ]);
+                $html = view('admin.reports.msp.pdf_template',
+                    compact('customer', 'stats', 'periodo', 'ovnicomLogo') + ['logoUrl' => $logoBase64]
+                )->render();
+
+                $this->generatePdf($html, $path);
+
+                Log::info("API PDF generado: {$filename}", [
+                    'user'     => $request->user()?->email,
+                    'customer' => $customer,
+                    'periodo'  => $periodo,
+                ]);
+            }
 
             return response()->download($path, $filename, [
                 'Content-Type' => 'application/pdf',
@@ -103,18 +107,21 @@ class MspReportApiController extends Controller
             ])
             ->format('A4')
             ->showBackground()
-            ->waitUntilNetworkIdle()
             ->timeout(120)
             ->save($outputPath);
     }
 
-    private function resolveLogoUrl(string $customer): ?string
+    // Convierte el logo del cliente a base64 para que Chrome no dependa de URLs HTTP
+    private function resolveLogoBase64(string $customer): ?string
     {
         $cliente = MspClient::where('customer_name', $customer)->first();
-        if ($cliente?->logo_path && file_exists(public_path('storage/' . $cliente->logo_path))) {
-            return asset('storage/' . $cliente->logo_path);
-        }
-        return null;
+        if (!$cliente?->logo_path) return null;
+
+        $path = public_path('storage/' . $cliente->logo_path);
+        if (!file_exists($path)) return null;
+
+        $mime = mime_content_type($path);
+        return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
     }
 
     private function getOvnicomLogo(): string
