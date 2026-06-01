@@ -17,9 +17,6 @@ services:
       - APP_ENV=${APP_ENV:-production}
     volumes:
       - .:/var/www
-      - /var/www/vendor
-      - /var/www/node_modules
-      - /var/www/public/build
     networks:
       - projectmsp
     depends_on:

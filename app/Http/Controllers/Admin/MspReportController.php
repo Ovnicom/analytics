@@ -195,6 +195,12 @@ class MspReportController extends Controller
         $path     = $pdf->generate($customer, $periodo, forceRegenerate: true);
         $filename = $pdf->buildFilename($customer, $periodo);
 
+        try {
+            app(SharePointService::class)->uploadPdf($path, $filename);
+        } catch (\Throwable $e) {
+            Log::error("SharePoint PDF upload individual [{$filename}]: " . $e->getMessage());
+        }
+
         return response()->download($path, $filename);
     }
 
@@ -259,6 +265,13 @@ class MspReportController extends Controller
 
                 $this->generatePdf($html, $pdfPath);
                 $zip->addFile($pdfPath, $filename);
+
+                try {
+                    app(SharePointService::class)->uploadPdf($pdfPath, $filename);
+                } catch (\Throwable $e) {
+                    Log::error("SharePoint PDF upload masivo [{$filename}]: " . $e->getMessage());
+                }
+
                 $generados++;
 
             } catch (\Throwable $e) {
