@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class SharePointService
 {
@@ -153,6 +154,69 @@ class SharePointService
         file_put_contents($tempPath, $fileContent);
 
         return $tempPath;
+    }
+
+    public function uploadPdf(string $localPath, string $filename): void
+    {
+        $pdfSiteUrl    = (string) config('services.sharepoint.pdf_site_url', '');
+        $pdfFolderPath = (string) config('services.sharepoint.pdf_folder_path', 'Documentos/DESCARGAS DE PDF');
+
+        if (empty($pdfSiteUrl)) {
+            Log::warning('SharePoint PDF: SHAREPOINT_PDF_SITE_URL no configurado, se omite la subida.');
+            return;
+        }
+
+        $token = $this->getAccessToken();
+
+        $parsed   = parse_url($pdfSiteUrl);
+        $hostname = $parsed['host'] ?? '';
+        $sitePath = ltrim($parsed['path'] ?? '', '/');
+
+        $siteResponse = Http::withToken($token)
+            ->get("https://graph.microsoft.com/v1.0/sites/{$hostname}:/{$sitePath}");
+
+        if (!$siteResponse->successful()) {
+            Log::error("SharePoint PDF: error obteniendo Site ID: " . $siteResponse->body());
+            return;
+        }
+
+        $siteId = $siteResponse->json('id');
+
+        $drivesResponse = Http::withToken($token)
+            ->get("https://graph.microsoft.com/v1.0/sites/{$siteId}/drives");
+
+        if (!$drivesResponse->successful()) {
+            Log::error("SharePoint PDF: error obteniendo drives: " . $drivesResponse->body());
+            return;
+        }
+
+        $drives  = $drivesResponse->json('value');
+        $driveId = null;
+        foreach ($drives as $drive) {
+            if (str_contains(strtolower($drive['name']), 'document') ||
+                str_contains(strtolower($drive['name']), 'shared')) {
+                $driveId = $drive['id'];
+                break;
+            }
+        }
+        $driveId ??= $drives[0]['id'] ?? null;
+
+        if (!$driveId) {
+            Log::error("SharePoint PDF: no se encontró un drive válido en [{$pdfSiteUrl}].");
+            return;
+        }
+
+        $uploadPath = rtrim($pdfFolderPath, '/') . '/' . $filename;
+
+        $response = Http::withToken($token)
+            ->withBody(file_get_contents($localPath), 'application/pdf')
+            ->put("https://graph.microsoft.com/v1.0/sites/{$siteId}/drives/{$driveId}/root:/{$uploadPath}:/content");
+
+        if (!$response->successful()) {
+            Log::error("SharePoint PDF: error subiendo [{$filename}]: " . $response->body());
+        } else {
+            Log::info("SharePoint PDF: subido correctamente [{$filename}]");
+        }
     }
 
     public function downloadFileById(string $itemId, string $filename): string

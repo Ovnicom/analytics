@@ -49,13 +49,15 @@ return [
     ],
 
     'sharepoint' => [
-        'tenant_id'     => env('AZURE_TENANT_ID'),
-        'client_id'     => env('AZURE_CLIENT_ID'),
-        'client_secret' => env('AZURE_CLIENT_SECRET'),
-        'site_url'      => env('SHAREPOINT_SITE_URL'),
-        'folder'        => env('SHAREPOINT_FOLDER'),
-        'file'          => env('SHAREPOINT_FILE'),
-        'folder_id'     => env('SHAREPOINT_FOLDER_ID'),  // ← agregar
+        'tenant_id'      => env('AZURE_TENANT_ID'),
+        'client_id'      => env('AZURE_CLIENT_ID'),
+        'client_secret'  => env('AZURE_CLIENT_SECRET'),
+        'site_url'       => env('SHAREPOINT_SITE_URL'),
+        'folder'         => env('SHAREPOINT_FOLDER'),
+        'file'           => env('SHAREPOINT_FILE'),
+        'folder_id'      => env('SHAREPOINT_FOLDER_ID'),
+        'pdf_site_url'   => env('SHAREPOINT_PDF_SITE_URL', 'https://ovnicom0.sharepoint.com/sites/DESCARGASDEPDFREPORTES'),
+        'pdf_folder_path'=> env('SHAREPOINT_PDF_FOLDER_PATH', 'Documentos/DESCARGAS DE PDF'),
     ],
 
     'azure' => [

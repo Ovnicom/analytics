@@ -330,6 +330,172 @@ class MspService
         });
     }
 
+    // -------------------------------------------------------------------------
+    // Tickets por cliente (Fase 2a)
+    // -------------------------------------------------------------------------
+
+    public function fetchTicketsByCustomer(string $customerId): array
+    {
+        $ticketsSelect = implode(',', [
+            'TicketNumber', 'TicketTitle', 'TicketDescription',
+            'TicketPriorityName', 'TicketStatusName', 'TicketCustomStatusName',
+            'ServiceItemName', 'ServiceItemTypeName',
+            'TicketIssueTypeName', 'TicketSubIssueTypeName',
+            'CustomerName',
+            'CreatedByEmailAddress', 'CreatedByFirstName', 'CreatedByLastName',
+            'UpdatedDate',
+            'UpdatedByEmailAddress', 'UpdatedByFirstName', 'UpdatedByLastName',
+            'CompletedDate', 'IsBillable', 'IsTaxable',
+        ]);
+
+        $usersSelect = implode(',', [
+            'UserEmailAddress', 'UserFirstName', 'UserLastName',
+            'TicketPriorityName', 'TicketStatusName', 'TicketCustomStatusName',
+            'TicketNumber', 'TicketId',
+        ]);
+
+        $filter = rawurlencode("CustomerId eq {$customerId}");
+
+        $responses = Http::pool(fn ($pool) => [
+            $pool->as('tickets')
+                ->withHeaders(['Authorization' => $this->authHeader])
+                ->timeout(30)
+                ->get($this->baseUrl . '/ticketsview?$filter=' . $filter
+                    . '&$orderby=TicketNumber desc'
+                    . '&$select=' . rawurlencode($ticketsSelect)),
+
+            $pool->as('ticket_users')
+                ->withHeaders(['Authorization' => $this->authHeader])
+                ->timeout(30)
+                ->get($this->baseUrl . '/ticketusersview?$filter=' . $filter
+                    . '&$orderby=TicketNumber desc'
+                    . '&$select=' . rawurlencode($usersSelect)),
+        ]);
+
+        $tickets     = !$responses['tickets']->failed()      ? ($responses['tickets']->json('value')      ?? []) : [];
+        $ticketUsers = !$responses['ticket_users']->failed() ? ($responses['ticket_users']->json('value') ?? []) : [];
+
+        $ticketIds = collect($ticketUsers)
+            ->pluck('TicketId')
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+
+        return [
+            'data'      => compact('tickets', 'ticket_users'),
+            'ticketIds' => $ticketIds,
+        ];
+    }
+
+    // -------------------------------------------------------------------------
+    // Detalle de tickets — responses + SLAs (Fase 2b)
+    // -------------------------------------------------------------------------
+
+    public function fetchTicketDetails(array $ticketIds): array
+    {
+        if (empty($ticketIds)) {
+            return ['responses' => [], 'slas' => []];
+        }
+
+        $responses = Http::pool(function ($pool) use ($ticketIds) {
+            $requests = [];
+
+            foreach ($ticketIds as $id) {
+                $safeId = preg_replace('/[^a-zA-Z0-9\-]/', '', $id);
+
+                $requests[] = $pool
+                    ->as("responses_{$safeId}")
+                    ->withHeaders(['Authorization' => $this->authHeader])
+                    ->timeout(15)
+                    ->get($this->baseUrl . '/ticketsresponses'
+                        . '?$filter=' . rawurlencode("TicketId eq {$safeId}")
+                        . '&$select=' . rawurlencode('Description,FromAddress,FromDisplay,CreatedDate,UpdatedDate'));
+
+                $requests[] = $pool
+                    ->as("slas_{$safeId}")
+                    ->withHeaders(['Authorization' => $this->authHeader])
+                    ->timeout(15)
+                    ->get($this->baseUrl . '/ticketslas'
+                        . '?$filter=' . rawurlencode("TicketId eq {$safeId}")
+                        . '&$select=' . rawurlencode(implode(',', [
+                            'CurrentPercentage', 'MarkedAssignedIn', 'MarkedInProgressIn',
+                            'MarkedCompletedIn', 'AssignedThreshold', 'InProgressThreshold',
+                            'CompletedThreshold', 'CurrentHours',
+                        ])));
+            }
+
+            return $requests;
+        });
+
+        $result = ['responses' => [], 'slas' => []];
+
+        foreach ($ticketIds as $id) {
+            $safeId = preg_replace('/[^a-zA-Z0-9\-]/', '', $id);
+
+            $respKey = "responses_{$safeId}";
+            $slaKey  = "slas_{$safeId}";
+
+            $result['responses'][$safeId] = isset($responses[$respKey]) && !$responses[$respKey]->failed()
+                ? ($responses[$respKey]->json('value') ?? [])
+                : [];
+
+            $slaValues = isset($responses[$slaKey]) && !$responses[$slaKey]->failed()
+                ? ($responses[$slaKey]->json('value') ?? [])
+                : [];
+
+            $result['slas'][$safeId] = $slaValues[0] ?? null;
+        }
+
+        return $result;
+    }
+
+    // -------------------------------------------------------------------------
+    // Búsqueda unificada por RUC (3 fases)
+    // -------------------------------------------------------------------------
+
+    public function unifiedSearch(string $ruc): array
+    {
+        $customers = $this->findCustomerByRuc($ruc);
+
+        if (empty($customers)) {
+            return [
+                'customer'     => null,
+                'message'      => 'Cliente no encontrado',
+                'tickets'      => [],
+                'ticket_users' => [],
+                'responses'    => [],
+                'slas'         => [],
+            ];
+        }
+
+        $customer   = $customers[0];
+        $customerId = $customer['CustomerId'] ?? null;
+
+        if (!$customerId) {
+            return [
+                'customer'     => $customer,
+                'message'      => 'CustomerId no disponible',
+                'tickets'      => [],
+                'ticket_users' => [],
+                'responses'    => [],
+                'slas'         => [],
+            ];
+        }
+
+        $phase2a   = $this->fetchTicketsByCustomer($customerId);
+        $phase2b   = $this->fetchTicketDetails($phase2a['ticketIds']);
+
+        return [
+            'customer'     => $customer,
+            'message'      => 'OK',
+            'tickets'      => $phase2a['data']['tickets']      ?? [],
+            'ticket_users' => $phase2a['data']['ticket_users'] ?? [],
+            'responses'    => $phase2b['responses'],
+            'slas'         => $phase2b['slas'],
+        ];
+    }
+
     public function findCustomerByRuc(string $ruc): array
     {
         $filter   = "contains(ReferenceId,'{$ruc}')";

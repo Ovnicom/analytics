@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\AuthTokenController;
 use App\Http\Controllers\Api\MspClientController;
 use App\Http\Controllers\Api\MspCustomerController;
 use App\Http\Controllers\Api\MspReportApiController;
+use App\Http\Controllers\Api\MspTicketsController;
 
 // ── Auth — emitir / revocar Bearer tokens ────────────────────────────────────
 Route::middleware('throttle:5,1')
@@ -29,6 +30,14 @@ Route::middleware(['auth:sanctum', 'throttle:20,1'])
 // ── MSP Customer por RUC ─────────────────────────────────────────────────────
 Route::middleware(['auth:sanctum', 'throttle:30,1'])
     ->get('/v1/msp/customer', [MspCustomerController::class, 'findByRuc']);
+
+// ── MSP Tickets por cliente ───────────────────────────────────────────────────
+Route::middleware(['auth:sanctum', 'throttle:20,1'])
+    ->group(function () {
+        Route::get('/v1/msp/search',         [MspTicketsController::class, 'search']);
+        Route::get('/v1/msp/tickets',        [MspTicketsController::class, 'tickets']);
+        Route::get('/v1/msp/ticket-details', [MspTicketsController::class, 'ticketDetails']);
+    });
 
 // ── MSP Clientes ─────────────────────────────────────────────────────────────
 Route::middleware(['auth:sanctum', 'throttle:10,1'])
