@@ -33,6 +33,7 @@ class MspReportController extends Controller
             try {
                 return response()->json(['files' => $sp->listExcelFiles()]);
             } catch (\Throwable $e) {
+                Log::error('SharePoint listExcelFiles failed', ['error' => $e->getMessage(), 'user' => auth()->id()]);
                 return response()->json(['error' => $e->getMessage()]);
             }
         }

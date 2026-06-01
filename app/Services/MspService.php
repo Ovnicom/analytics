@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\MspCredential;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class MspService
 {
@@ -203,7 +204,9 @@ class MspService
                         $entries   = $teResp->json('value') ?? [];
                         $timeEntry = !empty($entries) ? $entries[0] : null;
                     }
-                } catch (\Throwable $e) {}
+                } catch (\Throwable $e) {
+                    Log::warning("MSP EP2 parse error [{$ticketId}]: " . $e->getMessage());
+                }
 
                 // EP3 — desde cache o desde respuesta del pool
                 if (isset($cfCache[$ticketId])) {
@@ -222,7 +225,9 @@ class MspService
                             }
                             Cache::put("msp_cf_{$ticketId}", $customFields, self::CF_CACHE_TTL);
                         }
-                    } catch (\Throwable $e) {}
+                    } catch (\Throwable $e) {
+                        Log::warning("MSP EP3 parse error [{$ticketId}]: " . $e->getMessage());
+                    }
                 }
 
                 $extraData[$ticketId] = [
