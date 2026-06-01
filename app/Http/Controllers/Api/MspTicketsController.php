@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\MspService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class MspTicketsController extends Controller
 {
@@ -17,35 +18,67 @@ class MspTicketsController extends Controller
      */
     public function search(Request $request): JsonResponse
     {
-        $request->validate(['ruc' => 'required|string|min:3']);
+        $request->validate([
+            'ruc'   => 'required|string|min:3',
+            'limit' => 'nullable|integer|min:1|max:500',
+            'page'  => 'nullable|integer|min:1',
+        ]);
 
         try {
             $result = $this->msp->unifiedSearch($request->ruc);
 
+            if ($request->filled('limit')) {
+                $limit           = (int) $request->limit;
+                $page            = (int) ($request->page ?? 1);
+                $tickets         = array_slice($result['tickets'], ($page - 1) * $limit, $limit);
+                $result['tickets']      = $tickets;
+                $result['total']        = count($result['tickets']);
+                $result['page']         = $page;
+                $result['limit']        = $limit;
+            }
+
             return response()->json(['success' => true, 'data' => $result]);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            Log::error('MSP unifiedSearch failed', ['ruc' => $request->ruc, 'error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Error al realizar la búsqueda.'], 500);
         }
     }
 
     /**
-     * GET /api/v1/msp/tickets?customerId=XXXXXXXX
+     * GET /api/v1/msp/tickets?customerId=XXXXXXXX[&limit=50&page=1]
      * Tickets + ticket_users de un cliente por CustomerId.
      */
     public function tickets(Request $request): JsonResponse
     {
-        $request->validate(['customerId' => 'required|string']);
+        $request->validate([
+            'customerId' => 'required|string',
+            'limit'      => 'nullable|integer|min:1|max:500',
+            'page'       => 'nullable|integer|min:1',
+        ]);
 
         try {
-            $result = $this->msp->fetchTicketsByCustomer($request->customerId);
+            $result  = $this->msp->fetchTicketsByCustomer($request->customerId);
+            $tickets = $result['data']['tickets'];
+            $total   = count($tickets);
+
+            if ($request->filled('limit')) {
+                $limit   = (int) $request->limit;
+                $page    = (int) ($request->page ?? 1);
+                $tickets = array_slice($tickets, ($page - 1) * $limit, $limit);
+            }
 
             return response()->json([
                 'success'   => true,
-                'data'      => $result['data'],
+                'total'     => $total,
+                'data'      => [
+                    'tickets'      => $tickets,
+                    'ticket_users' => $result['data']['ticket_users'],
+                ],
                 'ticketIds' => $result['ticketIds'],
             ]);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            Log::error('MSP fetchTicketsByCustomer failed', ['customerId' => $request->customerId, 'error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Error al consultar los tickets.'], 500);
         }
     }
 
@@ -65,7 +98,8 @@ class MspTicketsController extends Controller
 
             return response()->json(['success' => true, 'data' => $result]);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            Log::error('MSP fetchTicketDetails failed', ['ticketIds' => $request->ticketIds, 'error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Error al consultar el detalle de tickets.'], 500);
         }
     }
 }

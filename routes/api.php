@@ -10,7 +10,7 @@ use App\Http\Controllers\Api\MspReportApiController;
 use App\Http\Controllers\Api\MspTicketsController;
 
 // ── Auth — emitir / revocar Bearer tokens ────────────────────────────────────
-Route::middleware('throttle:5,1')
+Route::middleware('throttle:3,15')
     ->post('/v1/auth/token', [AuthTokenController::class, 'issue']);
 
 Route::middleware(['auth:sanctum', 'throttle:10,1'])
