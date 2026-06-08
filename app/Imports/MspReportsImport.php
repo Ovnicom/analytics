@@ -33,7 +33,7 @@ use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
  * | tipo_de_ticket                       | tipo_ticket              | "Incidente" o "Solicitud". Otros tipos se descartan.|
  * | clasificacion_de_eventos             | clasificacion_eventos    | Normalizado a minúsculas para evitar duplicados.   |
  * | causa_de_dano                        | causa_dano               | Causa raíz del problema.                           |
- * | solucion                             | solucion                 | Solución aplicada.                                 |
+ * | solucion / Columna1                  | solucion                 | Solución aplicada. Alias: "Columna1" en algunos Excel.|
  * | detalle                              | detalle                  | Información adicional del ticket.                  |
  * | tipo_de_cliente                      | tipo_cliente             | Clasificación del cliente (ej. "Corporativo").     |
  * | ubicacion_hopsa                      | ubicacion_hopsa          | Sede específica para cliente HOPSA.                |
@@ -136,7 +136,7 @@ class MspReportsImport implements ToModel, WithHeadingRow, WithChunkReading, Ski
         $mesCierreRaw        = $this->toStr($row['mes_cierre'] ?? null);
         $tipoTicket          = $this->toStr($row['tipo_de_ticket'] ?? null);
         $causaDano           = $this->toStr($row['causa_de_dano'] ?? null);
-        $solucion            = $this->toStr($row['solucion'] ?? null);
+        $solucion            = $this->toStr($row['solucion'] ?? $row['Columna1'] ?? null);
         $detalle             = $this->toStr($row['detalle'] ?? null);
         $tipoCliente         = $this->toStr($row['tipo_de_cliente'] ?? null);
         $ubicacionHopsa      = $this->toStr($row['ubicacion_hopsa'] ?? null);
