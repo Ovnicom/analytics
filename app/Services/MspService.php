@@ -523,7 +523,10 @@ class MspService
             ->toArray();
 
         return [
-            'data'      => compact('tickets', 'ticket_users'),
+            'data'      => [
+                'tickets'      => $tickets,
+                'ticket_users' => $ticketUsers,
+            ],
             'ticketIds' => $ticketIds,
         ];
     }
