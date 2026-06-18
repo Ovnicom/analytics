@@ -180,6 +180,15 @@ class EnlaceController extends Controller
     }
 
     /**
+     * Elimina un circuito individual de la base de datos.
+     */
+    public function destroy(EnlaceCarrier $carrier): \Illuminate\Http\RedirectResponse
+    {
+        $carrier->delete();
+        return back()->with('success', 'Circuito eliminado correctamente.');
+    }
+
+    /**
      * Auto-sync en segundo plano: lo llama la vista por AJAX al cargar la página, para
      * no bloquear el render. Throttle de 10 min para no golpear SharePoint en cada visita.
      * Devuelve JSON; el front recarga la página si hubo cambios.

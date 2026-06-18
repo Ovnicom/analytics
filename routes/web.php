@@ -204,6 +204,7 @@ Route::middleware(['auth', 'module:enlaces'])
         Route::post('/sync',                     [EnlaceController::class, 'sync'])->name('sync');
         Route::post('/sharepoint/import',        [EnlaceController::class, 'sharepointImport'])->name('sharepoint.import');
         Route::post('/batch/{batch}/refresh',    [EnlaceController::class, 'refreshBatch'])->name('batch.refresh');
+        Route::delete('/carrier/{carrier}',      [EnlaceController::class, 'destroy'])->name('carrier.destroy');
     });
 
 // ─── Sincronizar ─────────────────────────────────────────────────────────────

@@ -20,16 +20,6 @@
                     Actualizado: {{ $lastBatch->created_at->isoFormat('D MMM YYYY') }}
                 </span>
                 @endif
-                @if($stats['total'] > 0)
-                <a href="{{ route('admin.enlaces.pdf') }}" target="_blank"
-                   class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-medium transition"
-                   title="Descargar un PDF con todos los circuitos por país">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                    Exportar PDF
-                </a>
-                @endif
                 @if($lastBatch && $hasCredentials && $hasFolder)
                 <form action="{{ route('admin.enlaces.sync') }}" method="POST">
                     @csrf
@@ -369,6 +359,17 @@
                                             </span>
                                         </div>
                                     </div>
+
+                                    {{-- Eliminar circuito --}}
+                                    <div class="pt-2 mt-2 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                                        <button @click.stop="deleteEnlace(enlace.id, enlace.cliente)"
+                                                class="inline-flex items-center gap-1 text-[10px] font-medium text-red-500 hover:text-red-700 dark:hover:text-red-400 transition px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20">
+                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                            Eliminar
+                                        </button>
+                                    </div>
                                 </div>
                             </template>
                         </div>
@@ -396,6 +397,7 @@
                                 <th class="text-left px-4 py-3 font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">IP Disponible</th>
                                 <th class="text-left px-4 py-3 font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Máscara / DNS</th>
                                 <th class="text-left px-4 py-3 font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Contacto</th>
+                                <th class="px-4 py-3"></th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -430,10 +432,19 @@
                                         <div class="text-gray-700 dark:text-gray-300" x-text="enlace.contacto_nombre || '—'"></div>
                                         <div class="text-gray-400 text-[10px]" x-text="enlace.contacto_telefono"></div>
                                     </td>
+                                    <td class="px-4 py-3" @click.stop>
+                                        <button @click="deleteEnlace(enlace.id, enlace.cliente)"
+                                                class="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition"
+                                                title="Eliminar circuito">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                        </button>
+                                    </td>
                                 </tr>
                             </template>
                             <tr x-show="filtered.length === 0">
-                                <td colspan="9" class="px-4 py-10 text-center text-gray-400">Sin resultados para los filtros aplicados.</td>
+                                <td colspan="10" class="px-4 py-10 text-center text-gray-400">Sin resultados para los filtros aplicados.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -779,6 +790,19 @@ function openImportModal(btn) {
         <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]')?.content || ''}">
         <input type="hidden" name="filename" value="${esc(filename)}">
         <input type="hidden" name="item_id"  value="${esc(itemId)}">`;
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function deleteEnlace(id, cliente) {
+    if (!confirm(`¿Eliminar el circuito de "${cliente}"?\n\nEsta acción no se puede deshacer.`)) return;
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ url('/admin/enlaces/carrier') }}/' + id;
+    form.innerHTML = `
+        <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]')?.content || ''}">
+        <input type="hidden" name="_method" value="DELETE">`;
     document.body.appendChild(form);
     form.submit();
 }
