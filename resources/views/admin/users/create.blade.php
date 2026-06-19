@@ -29,7 +29,7 @@
 
                 {{-- Header de la card --}}
                 <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center text-orange-600 dark:text-orange-300 text-xl font-bold shrink-0"
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-300 text-xl font-bold shrink-0"
                          x-text="initials"></div>
                     <div>
                         <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100"
@@ -48,7 +48,7 @@
                         </label>
                         <input type="text" name="name" x-model="name" value="{{ old('name') }}"
                                placeholder="Ej. María García"
-                               class="w-full px-3.5 py-2.5 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition
+                               class="w-full px-3.5 py-2.5 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition
                                {{ $errors->has('name') ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-gray-600' }}">
                         @error('name')
                             <p class="mt-1.5 text-xs text-red-500 flex items-center gap-1">
@@ -65,7 +65,7 @@
                         </label>
                         <input type="email" name="email" value="{{ old('email') }}"
                                placeholder="usuario@ovni.com"
-                               class="w-full px-3.5 py-2.5 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition
+                               class="w-full px-3.5 py-2.5 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition
                                {{ $errors->has('email') ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-gray-600' }}">
                         @error('email')
                             <p class="mt-1.5 text-xs text-red-500 flex items-center gap-1">
@@ -82,7 +82,7 @@
                                 Rol <span class="text-red-500">*</span>
                             </label>
                             <a href="{{ route('admin.roles.index') }}"
-                               class="text-xs text-orange-500 hover:text-orange-600 font-medium flex items-center gap-1 transition">
+                               class="text-xs text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1 transition">
                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                 </svg>
@@ -90,7 +90,7 @@
                             </a>
                         </div>
                         <select name="role_id"
-                                class="w-full px-3.5 py-2.5 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition
+                                class="w-full px-3.5 py-2.5 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition
                                 {{ $errors->has('role_id') ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-gray-600' }}">
                             <option value="">— Selecciona un rol —</option>
                             @foreach($roles as $role)
@@ -118,7 +118,7 @@
                         <div class="relative">
                             <input :type="showPass ? 'text' : 'password'" name="password"
                                    placeholder="Mínimo 8 caracteres"
-                                   class="w-full px-3.5 py-2.5 pr-10 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition
+                                   class="w-full px-3.5 py-2.5 pr-10 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition
                                    {{ $errors->has('password') ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-gray-600' }}">
                             <button type="button" @click="showPass = !showPass"
                                     class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">
@@ -147,7 +147,7 @@
                         <div class="relative">
                             <input :type="showPassConf ? 'text' : 'password'" name="password_confirmation"
                                    placeholder="Repite la contraseña"
-                                   class="w-full px-3.5 py-2.5 pr-10 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition">
+                                   class="w-full px-3.5 py-2.5 pr-10 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
                             <button type="button" @click="showPassConf = !showPassConf"
                                     class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">
                                 <svg x-show="!showPassConf" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -168,7 +168,7 @@
                             Cancelar
                         </a>
                         <button type="submit"
-                                class="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-lg transition shadow-sm">
+                                class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition shadow-sm">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>

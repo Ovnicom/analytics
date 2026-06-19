@@ -25,7 +25,7 @@
         </div>
         <button onclick="openModal()"
                 class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition shadow-sm flex-shrink-0"
-                style="background:var(--ovni-orange)">
+                style="background:#4f46e5">
             <i class="fa-solid fa-plus"></i> Nuevo rol
         </button>
     </div>
@@ -40,8 +40,8 @@
     <div class="rp-grid-3">
 
         <div class="rp-stat-card">
-            <div class="rp-stat-icon" style="--ic-bg:rgba(232,97,10,.12); --ic-bg-dark:rgba(232,97,10,.2)">
-                <i class="fa-solid fa-shield-halved" style="color:#ea7c2f;font-size:.95rem"></i>
+            <div class="rp-stat-icon" style="--ic-bg:rgba(79,70,229,.12); --ic-bg-dark:rgba(79,70,229,.2)">
+                <i class="fa-solid fa-shield-halved" style="color:#4f46e5;font-size:.95rem"></i>
             </div>
             <div>
                 <p class="rp-stat-num">{{ $totalRoles }}</p>
@@ -173,7 +173,7 @@
         <div class="flex items-center justify-between px-6 py-4 border-b dark:border-gray-700">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm shadow-sm"
-                     style="background: linear-gradient(135deg, var(--ovni-orange), #f97316)">
+                     style="background: linear-gradient(135deg, #4f46e5, #6366f1)">
                     <i class="fa-solid fa-shield-halved"></i>
                 </div>
                 <div>
@@ -204,7 +204,7 @@
                                placeholder="Ej: Supervisor, Analista, Editor…"
                                class="w-full border dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm
                                       bg-gray-50 dark:bg-gray-700/50 dark:text-white
-                                      focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent
+                                      focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
                                       placeholder-gray-300 dark:placeholder-gray-500 transition">
                     </div>
                     <div>
@@ -215,7 +215,7 @@
                                placeholder="Describe brevemente este rol…"
                                class="w-full border dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm
                                       bg-gray-50 dark:bg-gray-700/50 dark:text-white
-                                      focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent
+                                      focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
                                       placeholder-gray-300 dark:placeholder-gray-500 transition">
                     </div>
                 </div>
@@ -265,7 +265,7 @@
                 </button>
                 <button type="submit"
                         class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition shadow-sm"
-                        style="background: linear-gradient(135deg, var(--ovni-orange), #f97316)">
+                        style="background: linear-gradient(135deg, #4f46e5, #6366f1)">
                     <i class="fa-solid fa-floppy-disk"></i>
                     <span id="btn-submit-text">Crear rol</span>
                 </button>
@@ -385,8 +385,8 @@
     width: 2.5rem; height: 2.5rem; border-radius: .625rem; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
     color: #fff; font-size: .8rem; font-weight: 800;
-    background: linear-gradient(135deg, var(--ovni-orange), #f97316);
-    box-shadow: 0 2px 8px rgba(232,97,10,.3);
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    box-shadow: 0 2px 8px rgba(79,70,229,.3);
 }
 .rp-role-name { font-size: .85rem; font-weight: 700; color: #111827; }
 .dark .rp-role-name { color: #f1f5f9; }
@@ -431,7 +431,7 @@
 /* Progress bar */
 .rp-progress-track { height: 3px; background: #f1f5f9; }
 .dark .rp-progress-track { background: #263045; }
-.rp-progress-bar { height: 3px; background: var(--ovni-orange); transition: width .3s; }
+.rp-progress-bar { height: 3px; background: #4f46e5; transition: width .3s; }
 
 /* Footer */
 .rp-role-footer {
@@ -459,16 +459,16 @@
     transition: all .15s;
 }
 .rp-btn-edit:hover {
-    background: #fff7ed; color: #ea580c;
-    border-color: #fed7aa;
+    background: #eef2ff; color: #4338ca;
+    border-color: #c7d2fe;
 }
 .dark .rp-btn-edit {
     background: #263045; color: #cbd5e1;
     border-color: #334155;
 }
 .dark .rp-btn-edit:hover {
-    background: rgba(232,97,10,.15); color: #fb923c;
-    border-color: rgba(232,97,10,.35);
+    background: rgba(79,70,229,.15); color: #a5b4fc;
+    border-color: rgba(79,70,229,.35);
 }
 .rp-btn-delete {
     display: inline-flex; align-items: center; gap: .3rem;
@@ -499,7 +499,7 @@
 .rp-btn-new {
     display: inline-flex; align-items: center; gap: .4rem;
     padding: .5rem 1rem; border-radius: .625rem;
-    background: var(--ovni-orange); color: #fff;
+    background: #4f46e5; color: #fff;
     font-size: .8rem; font-weight: 600; border: none; cursor: pointer;
     transition: opacity .15s;
 }
@@ -589,10 +589,10 @@ function updateCardStyle(checkbox) {
     const icon      = card.querySelector('.check-icon');
 
     if (checkbox.checked) {
-        card.style.borderColor     = 'var(--ovni-orange, #e8610a)';
-        card.style.backgroundColor = '#fff8f4';
-        indicator.style.background  = '#e8610a';
-        indicator.style.borderColor = '#e8610a';
+        card.style.borderColor     = '#4f46e5';
+        card.style.backgroundColor = '#eef2ff';
+        indicator.style.background  = '#4f46e5';
+        indicator.style.borderColor = '#4f46e5';
         icon.classList.remove('hidden');
     } else {
         card.style.borderColor     = '';

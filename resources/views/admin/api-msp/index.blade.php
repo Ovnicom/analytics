@@ -56,7 +56,7 @@
                     </button>
 
                     <button onclick="openCredModal()"
-                            class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition shadow-sm">
+                            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition shadow-sm">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
                         </svg>
@@ -71,15 +71,15 @@
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Fecha desde</label>
                         <input type="date" id="fecha_inicio" value="{{ $fechaInicio }}"
-                               class="text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400">
+                               class="text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-400">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Fecha hasta</label>
                         <input type="date" id="fecha_fin" value="{{ $fechaFin }}"
-                               class="text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400">
+                               class="text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-400">
                     </div>
                     <button onclick="startQuery()" id="btn-filtrar"
-                            class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition">
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
                         </svg>
@@ -123,7 +123,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     <p id="table-error-msg" class="text-sm text-red-500 text-center"></p>
-                    <button onclick="startQuery()" class="text-xs text-purple-600 hover:underline mt-1">Reintentar</button>
+                    <button onclick="startQuery()" class="text-xs text-indigo-600 hover:underline mt-1">Reintentar</button>
                 </div>
             </div>
 
@@ -133,7 +133,7 @@
     {{-- Botón flotante AI Chat --}}
     <button id="btn-ai-chat" onclick="openAiChat()"
             style="display:none;"
-            class="fixed bottom-6 right-6 z-40 w-14 h-14 bg-purple-600 hover:bg-purple-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 items-center justify-center group">
+            class="fixed bottom-6 right-6 z-40 w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 items-center justify-center group">
         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
         </svg>
@@ -148,7 +148,7 @@
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md flex flex-col pointer-events-auto"
              style="height: 520px;">
 
-            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700 shrink-0 bg-purple-600 rounded-t-2xl">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700 shrink-0 bg-indigo-600 rounded-t-2xl">
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
                         <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -157,17 +157,17 @@
                     </div>
                     <div>
                         <h3 class="text-sm font-semibold text-white">Asistente MSP</h3>
-                        <p id="chat-subtitle" class="text-[10px] text-purple-200">Pregunta sobre los tickets cargados</p>
+                        <p id="chat-subtitle" class="text-[10px] text-indigo-200">Pregunta sobre los tickets cargados</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="clearChat()" title="Limpiar chat"
-                            class="text-purple-200 hover:text-white transition p-1 rounded">
+                            class="text-indigo-200 hover:text-white transition p-1 rounded">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                         </svg>
                     </button>
-                    <button onclick="closeAiChat()" class="text-purple-200 hover:text-white transition p-1 rounded">
+                    <button onclick="closeAiChat()" class="text-indigo-200 hover:text-white transition p-1 rounded">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -177,8 +177,8 @@
 
             <div id="chat-messages" class="flex-1 overflow-y-auto px-4 py-3 space-y-3">
                 <div class="flex gap-2">
-                    <div class="w-7 h-7 bg-purple-100 dark:bg-purple-900/40 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                        <svg class="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="w-7 h-7 bg-indigo-100 dark:bg-indigo-900/40 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                        <svg class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                         </svg>
                     </div>
@@ -191,19 +191,19 @@
 
                 <div id="chat-suggestions" class="flex flex-wrap gap-1.5 pl-9">
                     <button onclick="sendSuggestion('¿Cuántos tickets hay por cliente?')"
-                            class="text-[10px] px-2.5 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-full border border-purple-200 dark:border-purple-700 hover:bg-purple-100 transition">
+                            class="text-[10px] px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full border border-indigo-200 dark:border-indigo-700 hover:bg-indigo-100 transition">
                         Por cliente
                     </button>
                     <button onclick="sendSuggestion('¿Cuál es el WorkType más frecuente?')"
-                            class="text-[10px] px-2.5 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-full border border-purple-200 dark:border-purple-700 hover:bg-purple-100 transition">
+                            class="text-[10px] px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full border border-indigo-200 dark:border-indigo-700 hover:bg-indigo-100 transition">
                         WorkType frecuente
                     </button>
                     <button onclick="sendSuggestion('Dame un resumen general de los tickets')"
-                            class="text-[10px] px-2.5 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-full border border-purple-200 dark:border-purple-700 hover:bg-purple-100 transition">
+                            class="text-[10px] px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full border border-indigo-200 dark:border-indigo-700 hover:bg-indigo-100 transition">
                         Resumen general
                     </button>
                     <button onclick="sendSuggestion('¿Qué tipo de issues son los más comunes?')"
-                            class="text-[10px] px-2.5 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-full border border-purple-200 dark:border-purple-700 hover:bg-purple-100 transition">
+                            class="text-[10px] px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full border border-indigo-200 dark:border-indigo-700 hover:bg-indigo-100 transition">
                         Issues comunes
                     </button>
                 </div>
@@ -216,9 +216,9 @@
                               rows="1"
                               onkeydown="handleChatKey(event)"
                               oninput="autoResize(this)"
-                              class="flex-1 text-sm border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none max-h-24 leading-relaxed"></textarea>
+                              class="flex-1 text-sm border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none max-h-24 leading-relaxed"></textarea>
                     <button id="chat-send-btn" onclick="sendChatMessage()"
-                            class="w-9 h-9 bg-purple-600 hover:bg-purple-700 text-white rounded-xl flex items-center justify-center transition shrink-0 disabled:opacity-50 disabled:cursor-not-allowed">
+                            class="w-9 h-9 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl flex items-center justify-center transition shrink-0 disabled:opacity-50 disabled:cursor-not-allowed">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                         </svg>
@@ -235,14 +235,14 @@
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-8">
             <div class="flex justify-center mb-6">
                 <div class="relative w-16 h-16">
-                    <svg class="animate-spin w-16 h-16 text-purple-200 dark:text-purple-900/50" fill="none" viewBox="0 0 24 24">
+                    <svg class="animate-spin w-16 h-16 text-indigo-200 dark:text-indigo-900/50" fill="none" viewBox="0 0 24 24">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
                     </svg>
-                    <svg class="animate-spin w-16 h-16 text-purple-600 absolute inset-0" style="animation-duration:0.8s" fill="none" viewBox="0 0 24 24">
+                    <svg class="animate-spin w-16 h-16 text-indigo-600 absolute inset-0" style="animation-duration:0.8s" fill="none" viewBox="0 0 24 24">
                         <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                     </svg>
                     <div class="absolute inset-0 flex items-center justify-center">
-                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
                     </div>
@@ -253,10 +253,10 @@
             <div class="mb-5">
                 <div class="flex items-center justify-between mb-1.5">
                     <span id="loading-step-label" class="text-xs font-medium text-gray-500 dark:text-gray-400">Paso 1 de 3</span>
-                    <span id="loading-percent-label" class="text-xs font-bold text-purple-600 dark:text-purple-400">0%</span>
+                    <span id="loading-percent-label" class="text-xs font-bold text-indigo-600 dark:text-indigo-400">0%</span>
                 </div>
                 <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
-                    <div id="loading-bar" class="h-2.5 rounded-full bg-gradient-to-r from-purple-500 to-purple-700 transition-all duration-500 ease-out" style="width: 0%"></div>
+                    <div id="loading-bar" class="h-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-700 transition-all duration-500 ease-out" style="width: 0%"></div>
                 </div>
             </div>
             <div class="space-y-2">
@@ -274,7 +274,7 @@
                         <p class="text-xs font-semibold text-gray-700 dark:text-gray-200">Time entries & Custom fields</p>
                         <p id="step-2-sub" class="text-[10px] text-gray-400">En paralelo por lotes de 100</p>
                     </div>
-                    <span id="step-badge-2" class="ml-auto text-[10px] text-purple-500 font-medium hidden"></span>
+                    <span id="step-badge-2" class="ml-auto text-[10px] text-indigo-500 font-medium hidden"></span>
                 </div>
                 <div id="step-row-3" class="flex items-center gap-3 p-2.5 rounded-lg bg-gray-50 dark:bg-gray-700/50 opacity-40 transition-all duration-300">
                     <div id="step-icon-3" class="w-7 h-7 rounded-full border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center shrink-0 text-xs text-gray-400 font-semibold">3</div>
@@ -293,8 +293,8 @@
          class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
             <div class="flex items-center gap-3 mb-5">
-                <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/40 rounded-full flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/40 rounded-full flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
                     </svg>
                 </div>
@@ -308,23 +308,23 @@
                 <div>
                     <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Usuario (email)</label>
                     <input type="text" name="username" value="{{ config('services.msp.username') ?? '' }}" placeholder="usuario@empresa.com"
-                           class="w-full text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400">
+                           class="w-full text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-400">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Contraseña</label>
                     <input type="password" name="password" placeholder="••••••••"
-                           class="w-full text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400">
+                           class="w-full text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-400">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Base URL de la API</label>
                     <input type="text" name="base_url" value="{{ config('services.msp.base_url') ?? 'https://api.mspmanager.com/odata' }}"
-                           class="w-full text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400">
+                           class="w-full text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-400">
                 </div>
                 <div class="flex justify-end gap-3 pt-2">
                     <button type="button" onclick="closeCredModal()"
                             class="px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition">Cancelar</button>
                     <button type="submit"
-                            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition">Guardar credenciales</button>
+                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition">Guardar credenciales</button>
                 </div>
             </form>
         </div>
@@ -461,13 +461,13 @@
         const tbody = document.getElementById('table-body');
         tbody.innerHTML = '';
         const cellMap = {
-            TicketNumber:           v => `<td class="px-4 py-3 font-mono text-xs text-purple-600 dark:text-purple-400 whitespace-nowrap">${escHtml(v)||'—'}</td>`,
+            TicketNumber:           v => `<td class="px-4 py-3 font-mono text-xs text-indigo-600 dark:text-indigo-400 whitespace-nowrap">${escHtml(v)||'—'}</td>`,
             TicketTitle:            v => `<td class="px-4 py-3 text-gray-800 dark:text-gray-200 max-w-xs truncate" title="${escHtml(v)||''}">${escHtml(v)||'—'}</td>`,
             CustomerName:           v => `<td class="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">${escHtml(v)||'—'}</td>`,
             LocationName:           v => `<td class="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">${escHtml(v)||'—'}</td>`,
             TicketIssueTypeName:    v => `<td class="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">${escHtml(v)||'—'}</td>`,
             TicketSubIssueTypeName: v => `<td class="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">${escHtml(v)||'—'}</td>`,
-            WorkType:               v => `<td class="px-4 py-3 whitespace-nowrap">${v?`<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">${escHtml(v)}</span>`:'<span class="text-gray-300">—</span>'}</td>`,
+            WorkType:               v => `<td class="px-4 py-3 whitespace-nowrap">${v?`<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">${escHtml(v)}</span>`:'<span class="text-gray-300">—</span>'}</td>`,
             CustomWorkType:         v => `<td class="px-4 py-3 whitespace-nowrap">${v?`<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">${escHtml(v)}</span>`:'<span class="text-gray-300">—</span>'}</td>`,
             CreatedDate:            v => `<td class="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap text-xs">${escHtml(v)||'—'}</td>`,
             CompletedDate:          v => `<td class="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap text-xs">${escHtml(v)||'—'}</td>`,
@@ -567,12 +567,12 @@
         const div = document.createElement('div');
         if (role === 'user') {
             div.className = 'flex justify-end';
-            div.innerHTML = `<div class="bg-purple-600 text-white rounded-2xl rounded-tr-none px-3 py-2 max-w-[85%]"><p class="text-xs whitespace-pre-wrap">${escHtml(text)}</p></div>`;
+            div.innerHTML = `<div class="bg-indigo-600 text-white rounded-2xl rounded-tr-none px-3 py-2 max-w-[85%]"><p class="text-xs whitespace-pre-wrap">${escHtml(text)}</p></div>`;
         } else {
             div.className = 'flex gap-2';
             div.innerHTML = `
-                <div class="w-7 h-7 bg-purple-100 dark:bg-purple-900/40 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                    <svg class="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                <div class="w-7 h-7 bg-indigo-100 dark:bg-indigo-900/40 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                    <svg class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                 </div>
                 <div class="bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-tl-none px-3 py-2 max-w-[85%]">
                     <p class="text-xs text-gray-700 dark:text-gray-200 whitespace-pre-wrap">${escHtml(text)}</p>
@@ -588,8 +588,8 @@
         const div = document.createElement('div');
         div.id = id; div.className = 'flex gap-2';
         div.innerHTML = `
-            <div class="w-7 h-7 bg-purple-100 dark:bg-purple-900/40 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                <svg class="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+            <div class="w-7 h-7 bg-indigo-100 dark:bg-indigo-900/40 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                <svg class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
             </div>
             <div class="bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-tl-none px-3 py-2">
                 <div class="flex gap-1 items-center h-4">
@@ -624,8 +624,8 @@
                 icon.innerHTML = '<svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>';
             } else if (i === step) {
                 row.classList.remove('opacity-40');
-                icon.className = 'w-7 h-7 rounded-full flex items-center justify-center shrink-0 bg-purple-50 border-2 border-purple-500';
-                icon.innerHTML = '<svg class="animate-spin w-3.5 h-3.5 text-purple-600" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>';
+                icon.className = 'w-7 h-7 rounded-full flex items-center justify-center shrink-0 bg-indigo-50 border-2 border-indigo-500';
+                icon.innerHTML = '<svg class="animate-spin w-3.5 h-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>';
             } else {
                 row.classList.add('opacity-40');
             }

@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <nav class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
-                    <a href="{{ route('admin.glpi.index') }}" class="hover:text-orange-500 transition">GLPI</a>
+                    <a href="{{ route('admin.glpi.index') }}" class="hover:text-indigo-500 transition">GLPI</a>
                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                     </svg>
@@ -13,7 +13,7 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{{ number_format($total) }} registros totales</p>
             </div>
             <a href="{{ route('admin.glpi.create', $itemtype) }}"
-               class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-lg transition">
+               class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold rounded-lg transition">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
@@ -42,7 +42,7 @@
                     </svg>
                     <input type="text" name="search" value="{{ $search }}"
                            placeholder="Buscar por nombre..."
-                           class="w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-orange-400 transition"/>
+                           class="w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-indigo-400 transition"/>
                 </div>
 
                 {{-- Ordenar por --}}
@@ -51,7 +51,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
                     </svg>
                     <select name="sort" onchange="this.form.submit()"
-                            class="pl-9 pr-8 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 focus:outline-none focus:border-orange-400 transition appearance-none cursor-pointer">
+                            class="pl-9 pr-8 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 focus:outline-none focus:border-indigo-400 transition appearance-none cursor-pointer">
                         <option value="total_desc"   {{ $sort === 'total_desc'   ? 'selected' : '' }}>Mayor cantidad de equipos</option>
                         <option value="deposito_desc"{{ $sort === 'deposito_desc'? 'selected' : '' }}>Mayor cantidad en depósito</option>
                         <option value="alfa_asc"     {{ $sort === 'alfa_asc'     ? 'selected' : '' }}>Alfabético A → Z</option>
@@ -85,7 +85,7 @@
                     <div class="flex items-center justify-between pt-4">
                         <div class="flex items-center gap-3">
                             <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">{{ $tipo }}</h3>
-                            <span class="text-xs px-2 py-0.5 rounded-full bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 border border-orange-100 dark:border-orange-800 font-semibold">
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800 font-semibold">
                                 {{ $totalTipo }} {{ $totalTipo === 1 ? 'equipo' : 'equipos' }}
                             </span>
                             @if($depositoTipo > 0)
@@ -112,15 +112,15 @@
                                 <button onclick="toggleGroup('{{ $slugModelo }}')"
                                         class="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition text-left">
                                     <div class="flex items-center gap-2 min-w-0">
-                                        <div class="w-7 h-7 bg-orange-50 dark:bg-orange-900/30 rounded-lg flex items-center justify-center shrink-0">
-                                            <svg class="w-3.5 h-3.5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <div class="w-7 h-7 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center shrink-0">
+                                            <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/>
                                             </svg>
                                         </div>
                                         <div class="min-w-0">
                                             <p class="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{{ $modelo }}</p>
                                             <div class="flex items-center gap-2 mt-0.5">
-                                                <span class="text-xs text-orange-500 font-semibold">{{ $totalGrupo }}</span>
+                                                <span class="text-xs text-indigo-500 font-semibold">{{ $totalGrupo }}</span>
                                                 <span class="text-xs text-gray-400">{{ $totalGrupo === 1 ? 'equipo' : 'equipos' }}</span>
                                                 @if($deposito > 0)
                                                     <span class="text-xs px-1.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800 font-medium">
@@ -140,7 +140,7 @@
                                 {{-- Barra de depósito --}}
                                 @if($totalGrupo > 0)
                                     <div class="h-1 bg-gray-100 dark:bg-gray-700">
-                                        <div class="h-1 {{ $pct > 25 ? 'bg-amber-400' : 'bg-orange-400' }} transition-all"
+                                        <div class="h-1 {{ $pct > 25 ? 'bg-amber-400' : 'bg-indigo-400' }} transition-all"
                                              style="width: {{ max(0, 100 - $pct) }}%"></div>
                                     </div>
                                 @endif
@@ -172,7 +172,7 @@
                                                 <a href="{{ route('admin.glpi.show', [$itemtype, $item['id']]) }}"
                                                    class="text-xs text-blue-500 hover:text-blue-700 font-medium transition">Ver</a>
                                                 <a href="{{ route('admin.glpi.edit', [$itemtype, $item['id']]) }}"
-                                                   class="text-xs text-orange-500 hover:text-orange-700 font-medium transition">Editar</a>
+                                                   class="text-xs text-indigo-500 hover:text-indigo-700 font-medium transition">Editar</a>
                                             </div>
                                         </div>
                                     @endforeach

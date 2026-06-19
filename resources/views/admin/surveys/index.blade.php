@@ -36,7 +36,7 @@
                     Token API
                 </button>
                 <button onclick="openSurveyModal()"
-                        class="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition shadow-sm">
+                        class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition shadow-sm">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
@@ -53,7 +53,7 @@
                         </svg>
                         <p class="text-sm text-gray-400 dark:text-gray-500">No hay encuestas creadas aún</p>
                         <button onclick="openSurveyModal()"
-                                class="mt-1 text-sm text-violet-600 dark:text-violet-400 hover:underline">
+                                class="mt-1 text-sm text-indigo-600 dark:text-indigo-400 hover:underline">
                             Crear primera encuesta
                         </button>
                     </div>
@@ -67,8 +67,8 @@
                         <div class="px-5 pt-5 pb-4 flex-1">
                             <div class="flex items-start justify-between gap-3 mb-3">
                                 <div class="flex items-center gap-2">
-                                    <div class="w-8 h-8 bg-violet-100 dark:bg-violet-900/40 rounded-lg flex items-center justify-center shrink-0">
-                                        <svg class="w-4 h-4 text-violet-600 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg flex items-center justify-center shrink-0">
+                                        <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                         </svg>
                                     </div>
@@ -148,8 +148,8 @@
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-lg mx-4 p-6">
 
             <div class="flex items-center gap-3 mb-5">
-                <div class="w-10 h-10 bg-violet-100 dark:bg-violet-900/40 rounded-full flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/40 rounded-full flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
                 </div>
@@ -167,7 +167,7 @@
                     </label>
                     <input id="survey-name" type="text"
                            placeholder="Ej: Encuesta post-venta"
-                           class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400">
+                           class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400">
                     <p id="survey-name-error" class="text-xs text-red-500 mt-1 hidden">El nombre es obligatorio.</p>
                 </div>
 
@@ -178,7 +178,7 @@
                     </label>
                     <div id="campos-list" class="space-y-2"></div>
                     <button type="button" onclick="addCampo()"
-                            class="mt-2 inline-flex items-center gap-1.5 text-xs text-violet-600 dark:text-violet-400 hover:text-violet-800 transition">
+                            class="mt-2 inline-flex items-center gap-1.5 text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 transition">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
@@ -193,7 +193,7 @@
                         Cancelar
                     </button>
                     <button type="button" onclick="submitSurveyType()" id="survey-submit-btn"
-                            class="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-lg transition">
+                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition">
                         Generar encuesta
                     </button>
                 </div>
@@ -226,7 +226,7 @@
                 </p>
                 <div class="flex justify-end gap-3">
                     <button type="button" onclick="openSurveyModal()"
-                            class="px-4 py-2 text-sm text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-lg transition">
+                            class="px-4 py-2 text-sm text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition">
                         Crear otra
                     </button>
                     <button type="button" onclick="closeSurveyModal(); location.reload()"
@@ -300,7 +300,7 @@
                 <input type="text" value="${value}" placeholder="Ej: satisfaccion"
                        class="flex-1 px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-600 rounded-lg
                               bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200
-                              placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 font-mono">
+                              placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 font-mono">
                 <button type="button" onclick="this.closest('div').remove()"
                         class="p-1.5 text-gray-400 hover:text-red-500 transition" title="Quitar">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

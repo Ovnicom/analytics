@@ -8,7 +8,7 @@
     {{-- Header chat --}}
     <div class="bg-white rounded-t-2xl border-x border-t shadow-sm p-4 flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white"
-             style="background:linear-gradient(135deg,var(--ovni-dark),var(--ovni-orange))">
+             style="background:linear-gradient(135deg,var(--ovni-dark),#4f46e5)">
             <i class="fa-solid fa-robot text-sm"></i>
         </div>
         <div>
@@ -33,7 +33,7 @@
         {{-- Mensaje inicial --}}
         <div class="flex gap-3 ai-message">
             <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-white text-xs"
-                 style="background:var(--ovni-orange)">IA</div>
+                 style="background:#4f46e5">IA</div>
             <div class="bg-gray-100 rounded-2xl rounded-tl-none px-4 py-3 max-w-2xl">
                 <p class="text-sm text-gray-800">
                     ¡Hola! Soy el asistente IA de <strong>MSP Reports Ovnicom</strong>. Puedo ayudarte a:
@@ -58,7 +58,7 @@
             'Envía el reporte de Casa de las Baterias a test@test.com',
         ] as $sug)
         <button onclick="sendSuggestion(this)"
-                class="text-xs px-3 py-1.5 border rounded-full text-gray-600 hover:border-orange-400 hover:text-orange-600 transition">
+                class="text-xs px-3 py-1.5 border rounded-full text-gray-600 hover:border-indigo-400 hover:text-indigo-600 transition">
             {{ $sug }}
         </button>
         @endforeach
@@ -68,11 +68,11 @@
     <div class="bg-white rounded-b-2xl border shadow-sm p-4 flex gap-3">
         <input type="text" id="chatInput"
                placeholder="Escribe tu consulta sobre clientes, tickets, PDFs..."
-               class="flex-1 border rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-400 outline-none"
+               class="flex-1 border rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-400 outline-none"
                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}">
         <button onclick="sendMessage()" id="sendBtn"
                 class="text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 active:scale-95 transition flex items-center gap-2"
-                style="background:var(--ovni-orange)">
+                style="background:#4f46e5">
             <i class="fa-solid fa-paper-plane" id="sendIcon"></i>
         </button>
     </div>
@@ -85,7 +85,7 @@
         <div class="flex gap-3 mt-4">
             <button onclick="confirmAction()" id="confirmBtn"
                     class="flex-1 text-white py-2.5 rounded-lg text-sm font-medium"
-                    style="background:var(--ovni-orange)">Confirmar</button>
+                    style="background:#4f46e5">Confirmar</button>
             <button onclick="closeModal()"
                     class="flex-1 border py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">
                 Cancelar
@@ -114,7 +114,7 @@ function addMessage(role, content, isLoading = false) {
 
     if (role === 'user') {
         div.innerHTML = `
-            <div class="bg-orange-500 text-white rounded-2xl rounded-tr-none px-4 py-3 max-w-2xl text-sm">${escHtml(content)}</div>
+            <div class="bg-indigo-500 text-white rounded-2xl rounded-tr-none px-4 py-3 max-w-2xl text-sm">${escHtml(content)}</div>
             <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center bg-gray-200 text-gray-600 text-xs font-bold">TÚ</div>
         `;
     } else {
@@ -127,7 +127,7 @@ function addMessage(role, content, isLoading = false) {
             : `<p class="text-sm text-gray-800 whitespace-pre-wrap">${escHtml(content)}</p>`;
 
         div.innerHTML = `
-            <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-white text-xs" style="background:var(--ovni-orange)">IA</div>
+            <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-white text-xs" style="background:#4f46e5">IA</div>
             <div class="bg-gray-100 rounded-2xl rounded-tl-none px-4 py-3 max-w-2xl" id="${isLoading ? 'loadingMsg' : ''}">${body}</div>
         `;
     }
@@ -190,8 +190,8 @@ function handleAction(action) {
     if (action.action === 'download_pdf') {
         content.innerHTML = `
             <div class="text-center">
-                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <i class="fa-solid fa-file-pdf text-orange-600 text-xl"></i>
+                <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fa-solid fa-file-pdf text-indigo-600 text-xl"></i>
                 </div>
                 <h3 class="font-bold text-gray-800 mb-1">Descargar PDF</h3>
                 <p class="text-sm text-gray-600">¿Descargar el reporte de <strong>${escHtml(action.customer)}</strong> para el período <strong>${escHtml(action.periodo)}</strong>?</p>

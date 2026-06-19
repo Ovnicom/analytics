@@ -3,11 +3,11 @@
         <div class="flex items-center justify-between">
             <div>
                 <nav class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
-                    <a href="{{ route('admin.glpi.index') }}" class="hover:text-orange-500 transition">GLPI</a>
+                    <a href="{{ route('admin.glpi.index') }}" class="hover:text-indigo-500 transition">GLPI</a>
                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                     </svg>
-                    <a href="{{ route('admin.glpi.items', $itemtype) }}" class="hover:text-orange-500 transition">{{ $label }}</a>
+                    <a href="{{ route('admin.glpi.items', $itemtype) }}" class="hover:text-indigo-500 transition">{{ $label }}</a>
                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                     </svg>
@@ -19,7 +19,7 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">ID #{{ $item['id'] }}</p>
             </div>
             <a href="{{ route('admin.glpi.edit', [$itemtype, $item['id']]) }}"
-               class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-lg transition">
+               class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold rounded-lg transition">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                 </svg>

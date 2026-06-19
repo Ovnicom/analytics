@@ -1,4 +1,6 @@
 *.log
+DOCUMENTACION.md
+DOCUMENTACION.docx
 .DS_Store
 .env
 .env.backup
