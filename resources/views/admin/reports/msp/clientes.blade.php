@@ -11,7 +11,7 @@
             <div>
                 <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Período</label>
                 <select name="periodo" onchange="this.form.submit()"
-                        class="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        class="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     <option value="">— Todos —</option>
                     @foreach($periodos as $p)
                         <option value="{{ $p }}" {{ $periodo == $p ? 'selected' : '' }}>{{ \App\Models\MspReport::translatePeriodo($p) }}</option>
@@ -23,10 +23,10 @@
                 <div class="relative">
                     <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
                     <input type="text" name="search" value="{{ $search }}" placeholder="Nombre del cliente..."
-                           class="w-full border rounded-lg pl-9 pr-4 py-2 text-sm focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                           class="w-full border rounded-lg pl-9 pr-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                 </div>
             </div>
-            <button type="submit" class="px-5 py-2 text-white rounded-lg text-sm font-medium" style="background:var(--ovni-orange)">
+            <button type="submit" class="px-5 py-2 text-white rounded-lg text-sm font-medium" style="background:#4f46e5">
                 <i class="fa-solid fa-filter mr-1"></i> Filtrar
             </button>
             {{-- ← AGREGAR ESTO --}}

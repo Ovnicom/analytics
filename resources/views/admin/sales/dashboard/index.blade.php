@@ -41,8 +41,8 @@
                 <div class="xl:col-span-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
                     <div class="flex items-center justify-between mb-3">
                         <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Oport.</p>
-                        <div class="w-7 h-7 bg-purple-50 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                            <svg class="w-3.5 h-3.5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="w-7 h-7 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
+                            <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                             </svg>
                         </div>
@@ -136,14 +136,14 @@
             {{-- Fila 3 — Accesos rápidos --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <a href="{{ route('admin.sales.pipeline') }}"
-                   class="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:border-purple-400 hover:shadow-md transition-all flex items-center gap-3">
-                    <div class="w-9 h-9 bg-purple-50 dark:bg-purple-900/30 rounded-lg flex items-center justify-center group-hover:bg-purple-100 transition shrink-0">
-                        <svg class="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   class="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:border-indigo-400 hover:shadow-md transition-all flex items-center gap-3">
+                    <div class="w-9 h-9 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center group-hover:bg-indigo-100 transition shrink-0">
+                        <svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-purple-600 transition">Pipeline</p>
+                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-indigo-600 transition">Pipeline</p>
                         <p class="text-xs text-gray-400">{{ number_format($kpis['quotations']) }} cotizaciones abiertas</p>
                     </div>
                 </a>

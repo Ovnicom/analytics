@@ -20,7 +20,7 @@
         <div id="ovniFabAvatar" class="w-full h-full rounded-full overflow-hidden">
             <img src="{{ asset('storage/logos/ovni.png') }}"
                  alt="Ovni"
-                 onerror="this.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-500 to-orange-700\'><span class=\'text-white text-2xl font-black\'>O</span></div>'"
+                 onerror="this.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-500 to-indigo-700\'><span class=\'text-white text-2xl font-black\'>O</span></div>'"
                  class="w-full h-full object-cover">
         </div>
 
@@ -61,7 +61,7 @@
                 <div class="w-11 h-11 rounded-full overflow-hidden border-2 border-white/30 shadow-lg">
                     <img src="{{ asset('storage/logos/ovni.png') }}"
                          alt="Ovni"
-                         onerror="this.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center bg-orange-500\'><span class=\'text-white font-black\'>O</span></div>'"
+                         onerror="this.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center bg-indigo-500\'><span class=\'text-white font-black\'>O</span></div>'"
                          class="w-full h-full object-cover">
                 </div>
                 <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></span>
@@ -100,8 +100,8 @@
             @foreach(['Resumen del mes', 'Descargar PDF', 'Enviar por correo'] as $sug)
             <button onclick="OvniChat.suggest('{{ $sug }}')"
                     class="text-xs px-3 py-1.5 rounded-full border border-gray-200
-                           text-gray-500 hover:border-orange-400 hover:text-orange-600
-                           hover:bg-orange-50 transition-all duration-150 flex items-center gap-1">
+                           text-gray-500 hover:border-indigo-400 hover:text-indigo-600
+                           hover:bg-indigo-50 transition-all duration-150 flex items-center gap-1">
                 {{ $sug }}
             </button>
             @endforeach
@@ -113,7 +113,7 @@
                       rows="1"
                       placeholder="Conversa con Ovni aquí..."
                       class="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm
-                             focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none
+                             focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none
                              resize-none text-gray-700 placeholder-gray-400"
                       style="max-height:100px; font-family:inherit;"
                       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();OvniChat.send();}"
@@ -205,7 +205,7 @@
                 </div>`;
         } else {
             wrap.innerHTML = `
-                <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 shadow-sm mt-0.5 border border-orange-100">
+                <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 shadow-sm mt-0.5 border border-indigo-100">
                     <img src="{{ asset('storage/logos/ovni.png') }}"
                          onerror="this.parentElement.innerHTML='<div style=\'background:linear-gradient(135deg,#f97316,#c2410c)\' class=\'w-full h-full flex items-center justify-center\'><span class=\'text-white text-xs font-black\'>O</span></div>'"
                          class="w-full h-full object-cover">
@@ -227,16 +227,16 @@
         div.id = 'ovniLoading';
         div.className = 'flex gap-2 items-end';
         div.innerHTML = `
-            <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-orange-100 shadow-sm">
+            <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-indigo-100 shadow-sm">
                 <img src="{{ asset('storage/logos/ovni.png') }}"
                      onerror="this.parentElement.innerHTML='<div style=\'background:linear-gradient(135deg,#f97316,#c2410c)\' class=\'w-full h-full flex items-center justify-center\'><span class=\'text-white text-xs font-black\'>O</span></div>'"
                      class="w-full h-full object-cover">
             </div>
             <div class="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm border border-gray-100">
                 <div class="flex gap-1 items-center">
-                    <span class="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style="animation-delay:0ms"></span>
-                    <span class="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style="animation-delay:150ms"></span>
-                    <span class="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style="animation-delay:300ms"></span>
+                    <span class="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style="animation-delay:0ms"></span>
+                    <span class="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style="animation-delay:150ms"></span>
+                    <span class="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style="animation-delay:300ms"></span>
                 </div>
             </div>`;
         $('ovniChatMessages').appendChild(div);

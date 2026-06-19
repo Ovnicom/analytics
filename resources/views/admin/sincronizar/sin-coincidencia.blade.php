@@ -34,7 +34,7 @@
             @endif
 
             {{-- Instrucciones --}}
-            <div class="flex items-start gap-3 px-4 py-3 rounded-xl bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 text-sm text-orange-700 dark:text-orange-300">
+            <div class="flex items-start gap-3 px-4 py-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 text-sm text-indigo-700 dark:text-indigo-300">
                 <i class="fa-solid fa-circle-info text-base flex-shrink-0 mt-0.5"></i>
                 <span>
                     <strong>1.</strong> Haz clic en un cliente <strong>MSP</strong> — queda activo (parpadea).
@@ -52,7 +52,7 @@
                     oninput="filtrarOdoo(this.value)">
                 <input type="text" placeholder="Buscar en MSP…"
                     class="text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700
-                           text-gray-800 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                           text-gray-800 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
                     oninput="filtrarMsp(this.value)">
             </div>
 
@@ -103,11 +103,11 @@
                 {{-- MSP --}}
                 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow overflow-hidden flex flex-col">
                     <div class="flex-shrink-0 px-5 py-3 border-b border-gray-200 dark:border-gray-700
-                                flex items-center justify-between bg-orange-50/60 dark:bg-orange-900/10">
-                        <span class="text-sm font-semibold text-orange-700 dark:text-orange-400">
+                                flex items-center justify-between bg-indigo-50/60 dark:bg-indigo-900/10">
+                        <span class="text-sm font-semibold text-indigo-700 dark:text-indigo-400">
                             <i class="fa-solid fa-cloud mr-1.5"></i>MSP — sin match
                         </span>
-                        <span id="count-msp" class="text-xs text-orange-600 dark:text-orange-500">{{ count($mspSinMatch) }} registros</span>
+                        <span id="count-msp" class="text-xs text-indigo-600 dark:text-indigo-500">{{ count($mspSinMatch) }} registros</span>
                     </div>
                     <div class="flex-1 min-h-0 overflow-y-auto">
                         <table class="w-full text-sm text-left">
@@ -120,7 +120,7 @@
                             </thead>
                             <tbody id="tbody-msp" class="divide-y divide-gray-100 dark:divide-gray-700">
                                 @forelse ($mspSinMatch as $i => $cliente)
-                                    <tr class="fila-msp cursor-pointer transition-colors hover:bg-orange-50/60 dark:hover:bg-orange-900/10"
+                                    <tr class="fila-msp cursor-pointer transition-colors hover:bg-indigo-50/60 dark:hover:bg-indigo-900/10"
                                         data-nombre="{{ strtolower($cliente['msp_nombre'] ?? '') }}"
                                         data-customer-id="{{ $cliente['customer_id'] ?? '' }}"
                                         data-msp-nombre="{{ $cliente['msp_nombre'] ?? '' }}"
@@ -153,9 +153,9 @@
                     flex items-center justify-between gap-4
                     border-b border-gray-100 dark:border-gray-700/50">
             <div class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 min-w-0">
-                <i class="fa-solid fa-link-simple text-orange-500 flex-shrink-0"></i>
+                <i class="fa-solid fa-link-simple text-indigo-500 flex-shrink-0"></i>
                 <span id="bar-title">0 grupos</span>
-                <span id="bar-hint" class="hidden text-xs font-normal text-orange-500 dark:text-orange-400 ml-1 animate-pulse">
+                <span id="bar-hint" class="hidden text-xs font-normal text-indigo-500 dark:text-indigo-400 ml-1 animate-pulse">
                     ← selecciona clientes MSP para agregar al grupo activo
                 </span>
             </div>
@@ -445,18 +445,18 @@
                 </div>`).join('');
 
             const emptyHint = g.odooItems.length === 0 && isActive
-                ? `<div class="pl-9 py-1 text-[11px] text-orange-400 italic">
+                ? `<div class="pl-9 py-1 text-[11px] text-indigo-400 italic">
                        selecciona clientes Odoo para asignar…
                    </div>`
                 : '';
 
             return `
             <div class="rounded-lg overflow-hidden border ${isActive
-                ? 'border-orange-200 dark:border-orange-800'
+                ? 'border-indigo-200 dark:border-indigo-800'
                 : 'border-gray-100 dark:border-gray-700/50'}">
                 <div class="flex items-center gap-2 px-2 py-1.5 text-xs
                             ${isActive
-                                ? 'bg-orange-50 dark:bg-orange-900/15'
+                                ? 'bg-indigo-50 dark:bg-indigo-900/15'
                                 : 'bg-gray-50/80 dark:bg-gray-700/30'}">
                     <span class="w-2.5 h-2.5 rounded-full flex-shrink-0 ${isActive ? 'animate-pulse' : ''}"
                           style="background:${color.dot}"></span>
@@ -464,7 +464,7 @@
                           title="${escHtml(g.mspNombre)}">${escHtml(g.mspNombre)}</span>
                     <span class="text-gray-400 flex-shrink-0 text-[10px]">MSP</span>
                     ${isActive
-                        ? '<span class="text-[9px] font-bold text-orange-500 uppercase tracking-wide flex-shrink-0">activo</span>'
+                        ? '<span class="text-[9px] font-bold text-indigo-500 uppercase tracking-wide flex-shrink-0">activo</span>'
                         : ''}
                     <span class="text-gray-400 flex-shrink-0 text-[10px]">${g.odooItems.length} Odoo</span>
                     <button onclick="eliminarGrupo(${g.id})"

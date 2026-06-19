@@ -27,7 +27,7 @@
                 <div class="flex items-center gap-2">
                     <button id="btn-mes"
                         onclick="setMode('mes')"
-                        class="px-4 py-2 rounded-lg text-sm font-medium transition border bg-violet-600 text-white border-violet-600">
+                        class="px-4 py-2 rounded-lg text-sm font-medium transition border bg-indigo-600 text-white border-indigo-600">
                         Mes anterior
                     </button>
                     <button id="btn-mes-actual"
@@ -75,20 +75,20 @@
                     <div class="flex items-center justify-between mb-4">
                         <div>
                             <div class="flex items-center gap-2">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-orange-50 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">OTF</span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20">OTF</span>
                                 <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-100">One-Time Fee</h2>
                             </div>
                             <p class="text-xs text-gray-400 mt-1">Ingresos por cargo único · <span class="periodo-label">—</span></p>
                         </div>
                         <div class="text-right">
                             <p class="text-xs text-gray-400">Total</p>
-                            <p class="text-base font-bold text-orange-600 dark:text-orange-400" id="kpi-total-otf-header">—</p>
+                            <p class="text-base font-bold text-indigo-600 dark:text-indigo-400" id="kpi-total-otf-header">—</p>
                         </div>
                     </div>
                     <div id="podio-otf-bar" class="hidden mb-5">
                         <div class="flex items-center gap-2">
                             <div class="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
-                                <div class="bg-orange-400 h-1.5 rounded-full transition-all" id="bar-otf-pct" style="width:0%"></div>
+                                <div class="bg-indigo-400 h-1.5 rounded-full transition-all" id="bar-otf-pct" style="width:0%"></div>
                             </div>
                             <span class="text-xs text-gray-400 flex-shrink-0" id="bar-otf-txt">0%</span>
                         </div>
@@ -496,7 +496,7 @@
     // ── KPI card HTML ─────────────────────────────────────────
     function kpiCard(label, value, sub, color, iconPath, isCount=false) {
         const colors = {
-            orange: { bg:'bg-orange-50 dark:bg-orange-500/10', txt:'text-orange-600 dark:text-orange-400', icon:'text-orange-500' },
+            orange: { bg:'bg-indigo-50 dark:bg-indigo-500/10', txt:'text-indigo-600 dark:text-indigo-400', icon:'text-indigo-500' },
             teal:   { bg:'bg-teal-50 dark:bg-teal-500/10',     txt:'text-teal-600 dark:text-teal-400',     icon:'text-teal-500' },
             violet: { bg:'bg-violet-50 dark:bg-violet-500/10', txt:'text-violet-600 dark:text-violet-400', icon:'text-violet-500' },
             blue:   { bg:'bg-blue-50 dark:bg-blue-500/10',     txt:'text-blue-600 dark:text-blue-400',     icon:'text-blue-500' },
@@ -523,7 +523,7 @@
     // ── Aplica modo sin resetear temporizador (usado por rotación) ──
     function applyMode(mode) {
         currentMode = mode;
-        const active   = 'px-4 py-2 rounded-lg text-sm font-medium transition border bg-violet-600 text-white border-violet-600';
+        const active   = 'px-4 py-2 rounded-lg text-sm font-medium transition border bg-indigo-600 text-white border-indigo-600';
         const inactive = 'px-4 py-2 rounded-lg text-sm font-medium transition border bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
         document.getElementById('btn-mes').className        = mode === 'mes'        ? active : inactive;
         document.getElementById('btn-mes-actual').className = mode === 'mes_actual' ? active : inactive;

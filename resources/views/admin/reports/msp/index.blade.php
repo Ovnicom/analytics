@@ -101,7 +101,7 @@
                             {{ $batch->filename }}
                         </td>
                         <td class="py-3 pr-4">
-                            <span class="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium">
+                            <span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-medium">
                                 {{ $batch->periodo }}
                             </span>
                         </td>

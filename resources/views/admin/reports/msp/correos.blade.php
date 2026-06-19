@@ -8,11 +8,11 @@
 <style>
 /* ── Correos: tab styles ── */
 .correo-tab-active-orange {
-    border-color: var(--ovni-orange) !important;
-    background: rgba(232,97,10,.07) !important;
+    border-color: #4f46e5 !important;
+    background: rgba(79,70,229,.07) !important;
 }
 .dark .correo-tab-active-orange {
-    background: rgba(232,97,10,.12) !important;
+    background: rgba(79,70,229,.12) !important;
 }
 .correo-tab-active-blue {
     border-color: #2563eb !important;
@@ -33,9 +33,9 @@
     transition: border-color .15s, box-shadow .15s;
     outline:none;
 }
-.correo-input:focus { border-color:var(--ovni-orange); box-shadow:0 0 0 3px rgba(232,97,10,.12); }
+.correo-input:focus { border-color:#4f46e5; box-shadow:0 0 0 3px rgba(79,70,229,.12); }
 .dark .correo-input { background:#374151; border-color:#4b5563; color:#f9fafb; }
-.dark .correo-input:focus { border-color:var(--ovni-orange); box-shadow:0 0 0 3px rgba(232,97,10,.18); }
+.dark .correo-input:focus { border-color:#4f46e5; box-shadow:0 0 0 3px rgba(79,70,229,.18); }
 .correo-input-icon { padding-left:2.4rem; }
 .correo-select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right .75rem center; background-size:1rem; padding-right:2.5rem; }
 .correo-label { display:block; font-size:.72rem; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.35rem; }
@@ -85,7 +85,7 @@
                           {{ $periodo === $p
                                ? 'text-white border-transparent'
                                : 'text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700' }}"
-                   style="{{ $periodo === $p ? 'background:var(--ovni-orange)' : '' }}">
+                   style="{{ $periodo === $p ? 'background:#4f46e5' : '' }}">
                     {{ \App\Models\MspReport::translatePeriodo($p) }}
                 </a>
                 @endforeach
@@ -103,7 +103,7 @@
     <div class="flex gap-2">
         <button onclick="switchTab('individual')" id="tab-individual"
                 class="tab-btn flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 transition text-left correo-tab-active-orange">
-            <span class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs flex-shrink-0" style="background:var(--ovni-orange)">
+            <span class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs flex-shrink-0" style="background:#4f46e5">
                 <i class="fa-solid fa-envelope"></i>
             </span>
             <div>
@@ -129,7 +129,7 @@
 
             {{-- Header --}}
             <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2.5 bg-gray-50 dark:bg-gray-800/80">
-                <span class="w-6 h-6 rounded-md flex items-center justify-center text-white text-xs flex-shrink-0" style="background:var(--ovni-orange)">
+                <span class="w-6 h-6 rounded-md flex items-center justify-center text-white text-xs flex-shrink-0" style="background:#4f46e5">
                     <i class="fa-solid fa-envelope" style="font-size:.65rem"></i>
                 </span>
                 <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200">Envío Individual</h3>
@@ -156,7 +156,7 @@
                              data-name="{{ strtolower($cliente->customer_name) }}"
                              onclick="elegirCliente('{{ addslashes($cliente->customer_name) }}', '{{ $cliente->email_cliente }}', '{{ $cliente->numero_cuenta }}')">
                             <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                                 style="background:linear-gradient(135deg,var(--ovni-orange),#f97316)">
+                                 style="background:linear-gradient(135deg,#4f46e5,#f97316)">
                                 {{ strtoupper(substr($cliente->customer_name, 0, 2)) }}
                             </div>
                             <div class="flex-1 min-w-0">
@@ -179,8 +179,8 @@
                 <div class="col-span-3 flex flex-col">
                     {{-- Empty state --}}
                     <div id="individual-empty" class="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-center">
-                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center bg-orange-50 dark:bg-orange-900/20">
-                            <i class="fa-solid fa-arrow-pointer text-xl" style="color:var(--ovni-orange)"></i>
+                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center bg-indigo-50 dark:bg-indigo-900/20">
+                            <i class="fa-solid fa-arrow-pointer text-xl" style="color:#4f46e5"></i>
                         </div>
                         <div>
                             <p class="text-sm font-semibold text-gray-600 dark:text-gray-300">Selecciona un cliente</p>
@@ -191,9 +191,9 @@
                     {{-- Form --}}
                     <div id="individual-form" class="hidden flex-1 flex flex-col">
                         {{-- Selected client header --}}
-                        <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center gap-3 bg-orange-50/60 dark:bg-orange-900/10">
+                        <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center gap-3 bg-indigo-50/60 dark:bg-indigo-900/10">
                             <div id="ind-avatar" class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-                                 style="background:linear-gradient(135deg,var(--ovni-orange),#f97316)">--</div>
+                                 style="background:linear-gradient(135deg,#4f46e5,#f97316)">--</div>
                             <div class="flex-1 min-w-0">
                                 <div id="ind-nombre" class="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate"></div>
                                 <div id="ind-email" class="text-xs text-gray-400 truncate"></div>
@@ -237,7 +237,7 @@
                                             <label class="correo-label" style="margin:0">Plantilla</label>
                                             <button type="button" onclick="openModalPlantillas()"
                                                     class="text-xs font-medium flex items-center gap-1 transition hover:opacity-80"
-                                                    style="color:var(--ovni-orange)">
+                                                    style="color:#4f46e5">
                                                 <i class="fa-solid fa-sliders"></i> Gestionar
                                             </button>
                                         </div>
@@ -261,7 +261,7 @@
                                             @foreach($vars as $var)
                                             <button type="button" onclick="insertarVariable('mensaje_individual', '{{ $var }}')"
                                                     class="text-xs px-2 py-1 rounded-md border font-mono transition hover:opacity-80"
-                                                    style="background:rgba(232,97,10,.07);color:var(--ovni-orange);border-color:rgba(232,97,10,.25)">
+                                                    style="background:rgba(79,70,229,.07);color:#4f46e5;border-color:rgba(79,70,229,.25)">
                                                 {{ $var }}
                                             </button>
                                             @endforeach
@@ -280,7 +280,7 @@
                                     <div class="flex gap-2 pt-1">
                                         <button type="submit" id="btnSubmitIndividual"
                                                 class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition"
-                                                style="background:var(--ovni-orange)">
+                                                style="background:#4f46e5">
                                             <i class="fa-solid fa-paper-plane text-xs"></i>
                                             <span id="btnSubmitIndividualText">Enviar con PDF</span>
                                         </button>
@@ -461,7 +461,7 @@
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col border border-gray-200 dark:border-gray-700">
         <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-200 dark:border-gray-700">
             <div class="flex items-center gap-2">
-                <span class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs flex-shrink-0" style="background:var(--ovni-orange)">
+                <span class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs flex-shrink-0" style="background:#4f46e5">
                     <i class="fa-solid fa-palette"></i>
                 </span>
                 <h3 class="font-bold text-gray-800 dark:text-white">Gestionar Plantillas</h3>
@@ -478,7 +478,7 @@
                 <div class="p-3 border-b border-gray-100 dark:border-gray-700">
                     <button type="button" onclick="nuevaPlantilla()"
                             class="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-white text-xs font-semibold hover:opacity-90 transition"
-                            style="background:var(--ovni-orange)">
+                            style="background:#4f46e5">
                         <i class="fa-solid fa-plus"></i> Nueva plantilla
                     </button>
                 </div>
@@ -539,8 +539,8 @@
                                 </button>
                             </div>
                             <label class="flex items-center gap-2 px-4 py-3 border-2 border-dashed border-gray-200 dark:border-gray-600
-                                          rounded-xl cursor-pointer hover:border-orange-400 transition text-sm text-gray-400 dark:text-gray-500">
-                                <i class="fa-solid fa-image" style="color:var(--ovni-orange)"></i>
+                                          rounded-xl cursor-pointer hover:border-indigo-400 transition text-sm text-gray-400 dark:text-gray-500">
+                                <i class="fa-solid fa-image" style="color:#4f46e5"></i>
                                 <span id="imagen-label">Subir imagen (JPG, PNG, WEBP — máx. 2MB)</span>
                                 <input type="file" id="plantilla_imagen" accept="image/*" class="hidden" onchange="previewImagen(event)">
                             </label>
@@ -552,7 +552,7 @@
                                 @foreach($vars as $var)
                                 <button type="button" onclick="insertarVariable('plantilla_mensaje', '{{ $var }}')"
                                         class="text-xs px-2 py-1 rounded-md border font-mono transition hover:opacity-80"
-                                        style="background:rgba(232,97,10,.07);color:var(--ovni-orange);border-color:rgba(232,97,10,.25)">
+                                        style="background:rgba(79,70,229,.07);color:#4f46e5;border-color:rgba(79,70,229,.25)">
                                     {{ $var }}
                                 </button>
                                 @endforeach
@@ -568,7 +568,7 @@
                         <div class="flex gap-2 pt-1">
                             <button type="button" onclick="guardarPlantilla()" id="btn-guardar-plantilla"
                                     class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition"
-                                    style="background:var(--ovni-orange)">
+                                    style="background:#4f46e5">
                                 <i class="fa-solid fa-floppy-disk"></i> Guardar
                             </button>
                             <button type="button" onclick="usarPlantilla()"
@@ -632,8 +632,8 @@
         document.getElementById('ind-nombre').textContent    = name;
         document.getElementById('ind-email').textContent     = email || 'Sin email';
         document.querySelectorAll('.cliente-item-individual').forEach(el => {
-            el.classList.toggle('bg-orange-50', el.dataset.name === name.toLowerCase());
-            el.classList.toggle('dark:bg-orange-900/20', el.dataset.name === name.toLowerCase());
+            el.classList.toggle('bg-indigo-50', el.dataset.name === name.toLowerCase());
+            el.classList.toggle('dark:bg-indigo-900/20', el.dataset.name === name.toLowerCase());
         });
     };
 
@@ -643,7 +643,7 @@
         document.getElementById('input_customer_name').value = '';
         document.getElementById('input_email').value         = '';
         document.querySelectorAll('.cliente-item-individual').forEach(el => {
-            el.classList.remove('bg-orange-50', 'dark:bg-orange-900/20');
+            el.classList.remove('bg-indigo-50', 'dark:bg-indigo-900/20');
         });
     };
 
@@ -810,11 +810,11 @@
         container.innerHTML = plantillasCustom.map(p => `
             <div class="flex items-center gap-2 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer border-b dark:border-gray-700/50 transition"
                  onclick="editarPlantilla(${p.id})">
-                <div class="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 text-white text-xs" style="background:var(--ovni-orange)">
+                <div class="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 text-white text-xs" style="background:#4f46e5">
                     <i class="fa-solid fa-file-lines"></i>
                 </div>
                 <span class="text-xs text-gray-700 dark:text-gray-300 truncate flex-1">${escHtml(p.nombre)}</span>
-                ${p.imagen_path ? '<i class="fa-solid fa-image text-xs text-orange-400 flex-shrink-0" title="Tiene banner"></i>' : ''}
+                ${p.imagen_path ? '<i class="fa-solid fa-image text-xs text-indigo-400 flex-shrink-0" title="Tiene banner"></i>' : ''}
             </div>
         `).join('');
     }

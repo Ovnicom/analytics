@@ -74,7 +74,7 @@
                 @foreach($clientes as $cliente)
                 <label class="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 cursor-pointer transition cliente-row">
                     <input type="checkbox" name="clientes[]" value="{{ $cliente->customer_name }}"
-                           class="cliente-check w-4 h-4 rounded accent-orange-600"
+                           class="cliente-check w-4 h-4 rounded accent-indigo-600"
                            onchange="updateCount()">
                     <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
                          style="background:#1a1a2e">

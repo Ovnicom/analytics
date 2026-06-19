@@ -27,7 +27,7 @@
             </a>
             <a href="{{ route('admin.msp.pdf.download', urlencode($customer)) }}?periodo={{ $periodo }}"
                class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white"
-               style="background:var(--ovni-orange)">
+               style="background:#4f46e5">
                 <i class="fa-solid fa-download"></i> Descargar PDF
             </a>
         </div>
@@ -82,7 +82,7 @@
                         </label>
                         <input type="text" name="customer_name" value="{{ $customer }}"
                                class="w-full border dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm
-                                      focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white">
+                                      focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white">
                     </div>
 
                     <div>
@@ -95,7 +95,7 @@
                                    value="{{ $clienteInfo?->email_cliente }}"
                                    placeholder="cliente@empresa.com"
                                    class="w-full border dark:border-gray-600 rounded-xl pl-9 pr-4 py-2.5 text-sm
-                                          focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white">
+                                          focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white">
                         </div>
                     </div>
 
@@ -109,7 +109,7 @@
                                    value="{{ $clienteInfo?->numero_cuenta }}"
                                    placeholder="Ej: CTR-2026-001"
                                    class="w-full border dark:border-gray-600 rounded-xl pl-9 pr-4 py-2.5 text-sm
-                                          focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white">
+                                          focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white">
                         </div>
                     </div>
                 </div>
@@ -120,7 +120,7 @@
                 <button type="submit"
                         class="flex items-center gap-2 px-6 py-2.5 rounded-xl text-white text-sm font-semibold
                                hover:opacity-90 active:scale-95 transition"
-                        style="background: var(--ovni-orange)">
+                        style="background: #4f46e5">
                     <i class="fa-solid fa-floppy-disk"></i> Guardar información
                 </button>
             </div>
@@ -132,7 +132,7 @@
         @php
         $kpis = [
             ['label'=>'Cant. Incidentes',    'value'=> $stats['cant_incidentes'],    'icon'=>'fa-triangle-exclamation','color'=>'text-red-600',  'bg'=>'bg-red-50'],
-            ['label'=>'T. Prom. Incidentes', 'value'=> round($stats['tiempo_prom_incidentes'],3), 'icon'=>'fa-clock','color'=>'text-orange-600','bg'=>'bg-orange-50', 'suffix'=>' días'],
+            ['label'=>'T. Prom. Incidentes', 'value'=> round($stats['tiempo_prom_incidentes'],3), 'icon'=>'fa-clock','color'=>'text-indigo-600','bg'=>'bg-indigo-50', 'suffix'=>' días'],
             ['label'=>'Cant. Solicitudes',   'value'=> $stats['cant_solicitudes'],   'icon'=>'fa-clipboard-list',      'color'=>'text-blue-600', 'bg'=>'bg-blue-50'],
             ['label'=>'T. Prom. Solicitudes','value'=> round($stats['tiempo_prom_solicitudes'],3),'icon'=>'fa-clock','color'=>'text-teal-600',  'bg'=>'bg-teal-50',   'suffix'=>' días'],
         ];

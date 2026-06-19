@@ -103,7 +103,7 @@
                     'Phone'            => ['hover' => 'hover:border-green-400 dark:hover:border-green-400',   'arrow' => 'group-hover:text-green-400',  'iconbg' => 'bg-green-50 dark:bg-green-900/30',   'icon' => 'text-green-500',  'title' => 'group-hover:text-green-600 dark:group-hover:text-green-500'],
                     'Monitor'          => ['hover' => 'hover:border-indigo-400 dark:hover:border-indigo-400', 'arrow' => 'group-hover:text-indigo-400', 'iconbg' => 'bg-indigo-50 dark:bg-indigo-900/30', 'icon' => 'text-indigo-500', 'title' => 'group-hover:text-indigo-600 dark:group-hover:text-indigo-500'],
                     'Peripheral'       => ['hover' => 'hover:border-purple-400 dark:hover:border-purple-400', 'arrow' => 'group-hover:text-purple-400', 'iconbg' => 'bg-purple-50 dark:bg-purple-900/30', 'icon' => 'text-purple-500', 'title' => 'group-hover:text-purple-600 dark:group-hover:text-purple-500'],
-                    'Software'         => ['hover' => 'hover:border-orange-400 dark:hover:border-orange-400', 'arrow' => 'group-hover:text-orange-400', 'iconbg' => 'bg-orange-50 dark:bg-orange-900/30', 'icon' => 'text-orange-500', 'title' => 'group-hover:text-orange-600 dark:group-hover:text-orange-500'],
+                    'Software'         => ['hover' => 'hover:border-indigo-400 dark:hover:border-indigo-400', 'arrow' => 'group-hover:text-indigo-400', 'iconbg' => 'bg-indigo-50 dark:bg-indigo-900/30', 'icon' => 'text-indigo-500', 'title' => 'group-hover:text-indigo-600 dark:group-hover:text-indigo-500'],
                 ];
                 @endphp
 

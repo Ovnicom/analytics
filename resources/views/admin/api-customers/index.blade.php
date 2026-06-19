@@ -40,7 +40,7 @@
 
                     <button onclick="fetchCustomers()"
                             id="btn-fetch"
-                            class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+                            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
                         <svg id="btn-icon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                         </svg>
@@ -68,7 +68,7 @@
 
                 {{-- Loading --}}
                 <div id="state-loading" class="hidden flex flex-col items-center gap-3 py-16">
-                    <svg class="animate-spin w-8 h-8 text-purple-600" fill="none" viewBox="0 0 24 24">
+                    <svg class="animate-spin w-8 h-8 text-indigo-600" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                     </svg>
@@ -134,7 +134,7 @@
             tr.innerHTML = `
                 <td class="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">${i + 1}</td>
                 <td class="px-4 py-3 text-gray-800 dark:text-gray-200 whitespace-nowrap">${esc(row.CustomerName)}</td>
-                <td class="px-4 py-3 font-mono text-xs text-purple-600 dark:text-purple-400 whitespace-nowrap">${esc(row.CustomerId)}</td>
+                <td class="px-4 py-3 font-mono text-xs text-indigo-600 dark:text-indigo-400 whitespace-nowrap">${esc(row.CustomerId)}</td>
             `;
             tbody.appendChild(tr);
         });
