@@ -144,6 +144,32 @@ class MspReportControllerTest extends TestCase
             RefreshMspBatchJob::class,
             fn (RefreshMspBatchJob $job) => $job->batchId === $batch->id,
         );
+
+        $this->assertDatabaseHas('msp_upload_batches', [
+            'id' => $batch->id,
+            'refresh_status' => 'queued',
+        ]);
+    }
+
+    public function test_refresh_batch_status_devuelve_resultado_del_job(): void
+    {
+        $batch = $this->makeBatch();
+        $batch->update([
+            'refresh_status' => 'completed',
+            'refresh_message' => 'Actualización completada correctamente.',
+            'refresh_finished_at' => now(),
+            'total_registros' => 25,
+            'clientes_unicos' => 3,
+        ]);
+
+        $this->actingAs($this->admin)
+            ->getJson(route('admin.msp.batch.refresh-status', $batch))
+            ->assertOk()
+            ->assertJson([
+                'status' => 'completed',
+                'total_registros' => 25,
+                'clientes_unicos' => 3,
+            ]);
     }
 
     // =========================================================================

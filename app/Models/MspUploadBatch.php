@@ -35,5 +35,11 @@ class MspUploadBatch extends Model
      */
     protected $fillable = [
         'filename', 'periodo', 'total_registros', 'clientes_unicos', 'sharepoint_item_id',
+        'refresh_status', 'refresh_message', 'refresh_started_at', 'refresh_finished_at',
+    ];
+
+    protected $casts = [
+        'refresh_started_at' => 'datetime',
+        'refresh_finished_at' => 'datetime',
     ];
 }

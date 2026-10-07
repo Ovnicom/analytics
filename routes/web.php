@@ -64,6 +64,7 @@ Route::middleware(['auth', 'module:msp_reports'])
         Route::get('/', [MspReportController::class, 'index'])->name('index');
         Route::post('/sharepoint/import', [MspReportController::class, 'sharepointImport'])->name('sharepoint.import');
         Route::post('/batch/{batch}/refresh', [MspReportController::class, 'refreshBatch'])->name('batch.refresh');
+        Route::get('/batch/{batch}/refresh-status', [MspReportController::class, 'refreshBatchStatus'])->name('batch.refresh-status');
 
         Route::get('/clientes',                    [MspReportController::class, 'clientes'])->name('clientes');
         Route::get('/clientes/{customer}',         [MspReportController::class, 'clienteDetalle'])->name('clientes.detalle');

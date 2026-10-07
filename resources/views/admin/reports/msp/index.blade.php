@@ -95,7 +95,11 @@
                 </thead>
                 <tbody class="divide-y dark:divide-gray-700">
                     @foreach($batches as $batch)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700"
+                        data-batch-id="{{ $batch->id }}"
+                        data-batch-name="{{ $batch->filename }}"
+                        data-refresh-status="{{ $batch->refresh_status }}"
+                        data-status-url="{{ route('admin.msp.batch.refresh-status', $batch) }}">
                         <td class="py-3 pr-4 font-medium text-gray-700 dark:text-gray-300">
                             <i class="fa-solid fa-file-excel text-green-600 mr-1"></i>
                             {{ $batch->filename }}
@@ -122,6 +126,9 @@
                                         <span class="bg-white/20 px-1.5 rounded">{{ $diasRestantes }}d</span>
                                     </button>
                                 </form>
+                                <div class="refresh-indicator hidden mt-1 text-xs text-amber-600">
+                                    <i class="fa-solid fa-spinner fa-spin"></i> Actualizando en segundo plano...
+                                </div>
                             @elseif($batch->sharepoint_item_id)
                                 <span class="text-xs text-gray-400 flex items-center gap-1">
                                     <i class="fa-solid fa-lock"></i> Expirado
@@ -186,6 +193,49 @@
 <script>
 // Escapa texto interpolado en innerHTML (nombres de archivo vienen de SharePoint)
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// ── Notificaciones de actualización en segundo plano ─────────────────────────
+function showToast(message, type) {
+    let box = document.getElementById('toastBox');
+    if (!box) {
+        box = document.createElement('div');
+        box.id = 'toastBox';
+        box.className = 'fixed top-4 right-4 z-50 space-y-2';
+        document.body.appendChild(box);
+    }
+    const colors = { success: 'bg-green-600', error: 'bg-red-600' };
+    const t = document.createElement('div');
+    t.className = 'px-4 py-3 rounded-lg shadow-lg text-white text-sm ' + (colors[type] || 'bg-indigo-600');
+    t.textContent = message;
+    box.appendChild(t);
+    setTimeout(() => t.remove(), 8000);
+}
+
+function pollBatchRefresh(row) {
+    const indicator = row.querySelector('.refresh-indicator');
+    indicator?.classList.remove('hidden');
+    const name = row.dataset.batchName;
+    const timer = setInterval(() => {
+        fetch(row.dataset.statusUrl, { headers: { 'Accept': 'application/json' } })
+            .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+            .then(d => {
+                if (d.status === 'completed') {
+                    clearInterval(timer);
+                    showToast('✅ "' + name + '" actualizado: ' + d.total_registros + ' registros, ' + d.clientes_unicos + ' clientes.', 'success');
+                    setTimeout(() => location.reload(), 2500);
+                } else if (d.status === 'failed') {
+                    clearInterval(timer);
+                    indicator?.classList.add('hidden');
+                    showToast('❌ Falló la actualización de "' + name + '". Revisa los logs.', 'error');
+                }
+            })
+            .catch(() => {});
+    }, 4000);
+}
+
+document.querySelectorAll('tr[data-refresh-status]').forEach(row => {
+    if (['queued', 'processing'].includes(row.dataset.refreshStatus)) pollBatchRefresh(row);
+});
 
 // ── SharePoint lazy load ──────────────────────────────────────────────────────
 function loadSharePointFiles() {

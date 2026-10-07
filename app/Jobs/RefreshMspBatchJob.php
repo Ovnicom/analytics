@@ -38,6 +38,13 @@ class RefreshMspBatchJob implements ShouldQueue, ShouldBeUnique
         $batch = MspUploadBatch::findOrFail($this->batchId);
         $tempPath = null;
 
+        $batch->update([
+            'refresh_status' => 'processing',
+            'refresh_message' => 'Descargando e importando el archivo de SharePoint.',
+            'refresh_started_at' => now(),
+            'refresh_finished_at' => null,
+        ]);
+
         try {
             $tempPath = $sharePoint->downloadFileById($batch->sharepoint_item_id, $batch->filename);
 
@@ -53,7 +60,26 @@ class RefreshMspBatchJob implements ShouldQueue, ShouldBeUnique
                 ]);
             });
 
+            $batch->update([
+                'refresh_status' => 'completed',
+                'refresh_message' => 'Actualización completada correctamente.',
+                'refresh_finished_at' => now(),
+            ]);
+
             Log::info('Batch MSP actualizado', ['batch_id' => $batch->id]);
+        } catch (\Throwable $e) {
+            $batch->update([
+                'refresh_status' => 'failed',
+                'refresh_message' => 'No se pudo completar la actualización.',
+                'refresh_finished_at' => now(),
+            ]);
+
+            Log::error('Error al actualizar batch MSP', [
+                'batch_id' => $batch->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw $e;
         } finally {
             if ($tempPath && file_exists($tempPath)) {
                 @unlink($tempPath);

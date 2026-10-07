@@ -978,8 +978,30 @@ Para cualquier otra consulta responde en español de forma clara y concisa.";
             return back()->with('error', '❌ Este batch no tiene referencia a SharePoint.');
         }
 
+        if (in_array($batch->refresh_status, ['queued', 'processing'], true)) {
+            return back()->with('success', 'La actualización ya se encuentra en proceso.');
+        }
+
+        $batch->update([
+            'refresh_status' => 'queued',
+            'refresh_message' => 'Esperando turno para actualizar.',
+            'refresh_started_at' => null,
+            'refresh_finished_at' => null,
+        ]);
+
         RefreshMspBatchJob::dispatch($batch->id);
 
         return back()->with('success', 'La actualización comenzó en segundo plano. Los totales se actualizarán al finalizar.');
+    }
+
+    public function refreshBatchStatus(MspUploadBatch $batch)
+    {
+        return response()->json([
+            'status' => $batch->refresh_status,
+            'message' => $batch->refresh_message,
+            'total_registros' => $batch->total_registros,
+            'clientes_unicos' => $batch->clientes_unicos,
+            'finished_at' => $batch->refresh_finished_at?->toIso8601String(),
+        ]);
     }
 }
