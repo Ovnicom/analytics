@@ -8,6 +8,7 @@ use App\Models\MspReport;
 use App\Models\MspUploadBatch;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Maatwebsite\Excel\Facades\Excel;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
@@ -205,6 +206,23 @@ class MspReportsImportTest extends TestCase
         $this->assertDatabaseHas('msp_reports', [
             'ticket_number' => 55555,
             'customer_name' => 'Empresa Con Espacios',
+        ]);
+    }
+
+    #[Test]
+    public function tipo_ticket_se_guarda_con_formato_canonico(): void
+    {
+        $row = $this->makeRow([
+            'ticket_number'  => 55556,
+            'customername'   => 'Empresa Test',
+            'tipo_de_ticket' => ' incidente ',
+        ]);
+
+        $this->import->model($row);
+
+        $this->assertDatabaseHas('msp_reports', [
+            'ticket_number' => 55556,
+            'tipo_ticket'   => 'Incidente',
         ]);
     }
 

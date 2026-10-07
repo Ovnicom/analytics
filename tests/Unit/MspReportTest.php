@@ -36,5 +36,42 @@ class MspReportTest extends TestCase
         $periodos = MspReport::uniquePeriodos();
 
         $this->assertNotContains(null, $periodos);
-    }   
+    }
+
+    #[Test]
+    public function estadisticas_incluyen_tipos_historicos_con_formato_distinto()
+    {
+        MspReport::factory()->create([
+            'customer_name' => 'HOPSA',
+            'periodo' => 'September 2026',
+            'tipo_ticket' => ' incidente ',
+        ]);
+        MspReport::factory()->create([
+            'customer_name' => 'HOPSA',
+            'periodo' => 'September 2026',
+            'tipo_ticket' => 'solicitud',
+        ]);
+
+        $stats = MspReport::statsForCustomer('HOPSA', 'September 2026');
+
+        $this->assertSame(1, $stats['cant_incidentes']);
+        $this->assertSame(1, $stats['cant_solicitudes']);
+    }
+
+    #[Test]
+    public function estadisticas_usan_ubicacion_hopsa_en_las_graficas()
+    {
+        MspReport::factory()->create([
+            'customer_name' => 'HOPSA',
+            'periodo' => 'September 2026',
+            'tipo_ticket' => 'Incidente',
+            'location_name' => 'Ubicación genérica',
+            'ubicacion_hopsa' => 'Planta Tocumen',
+        ]);
+
+        $stats = MspReport::statsForCustomer('HOPSA', 'September 2026');
+
+        $this->assertSame(1, $stats['por_ubicacion_incidentes']->get('Planta tocumen'));
+        $this->assertFalse($stats['por_ubicacion_incidentes']->has('Ubicación genérica'));
+    }
 }

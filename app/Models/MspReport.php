@@ -140,7 +140,7 @@ class MspReport extends Model
         if ($periodo) $q->forPeriodo($periodo);
 
         // Solo Incidente y Solicitud, excluyendo ticket_type con cancelación/instalación/inspección
-        $q->whereIn('tipo_ticket', ['Incidente', 'Solicitud'])
+        $q->whereIn(\DB::raw('LOWER(TRIM(tipo_ticket))'), ['incidente', 'solicitud'])
         ->where(function ($query) {
             $query->whereNull('ticket_type')
                     ->orWhere(function ($q2) {
@@ -152,10 +152,12 @@ class MspReport extends Model
 
         // CASE en vez de FIELD() (solo MySQL) para compatibilidad con SQLite (tests).
         // Equivalente: el whereIn ya limita tipo_ticket a estos dos valores.
-        $tickets = $q->orderByRaw("CASE tipo_ticket WHEN 'Incidente' THEN 1 WHEN 'Solicitud' THEN 2 ELSE 3 END")->get();
+        $tickets = $q->orderByRaw("CASE LOWER(TRIM(tipo_ticket)) WHEN 'incidente' THEN 1 WHEN 'solicitud' THEN 2 ELSE 3 END")->get();
 
-        $incidentes  = $tickets->where('tipo_ticket', 'Incidente');
-        $solicitudes = $tickets->where('tipo_ticket', 'Solicitud');
+        // Tolera registros históricos importados con espacios o capitalización distinta.
+        $tipoNormalizado = fn($t) => mb_strtolower(trim((string) $t->tipo_ticket));
+        $incidentes  = $tickets->filter(fn($t) => $tipoNormalizado($t) === 'incidente');
+        $solicitudes = $tickets->filter(fn($t) => $tipoNormalizado($t) === 'solicitud');
 
         // Normalizador: baja a minúsculas + trim para agrupar, luego capitaliza para mostrar
         $normalize = fn($v) => $v ? ucfirst(preg_replace('/\s+/', ' ', trim(mb_strtolower((string) $v)))) : 'Sin clasificar';
@@ -167,10 +169,10 @@ class MspReport extends Model
             'tiempo_prom_incidentes'  => $incidentes->avg('tiempo_vida_ticket') ?? 0,
             'tiempo_prom_solicitudes' => $solicitudes->avg('tiempo_vida_ticket') ?? 0,
 
-            'por_ubicacion_solicitudes' => $solicitudes->groupBy(fn($t) => $normalize($t->location_name))
+            'por_ubicacion_solicitudes' => $solicitudes->groupBy(fn($t) => $normalize($t->ubicacion_hopsa ?: $t->location_name))
                 ->map(fn($g) => $g->count())->sortDesc(),
 
-            'por_ubicacion_incidentes' => $incidentes->groupBy(fn($t) => $normalize($t->location_name))
+            'por_ubicacion_incidentes' => $incidentes->groupBy(fn($t) => $normalize($t->ubicacion_hopsa ?: $t->location_name))
                 ->map(fn($g) => $g->count())->sortDesc(),
 
             'por_clasificacion' => $incidentes->groupBy(fn($t) => $normalize($t->clasificacion_eventos))
@@ -187,7 +189,7 @@ class MspReport extends Model
 
             'detalle_tickets' => $tickets->map(fn($t) => [
                 'ticket'      => $t->ticket_number,
-                'tipo'        => $t->tipo_ticket,
+                'tipo'        => $tipoNormalizado($t) === 'incidente' ? 'Incidente' : 'Solicitud',
                 'descripcion' => $t->ticket_title,
                 'causa'       => $t->causa_dano,
                 'solucion'    => $t->solucion,

@@ -198,6 +198,9 @@ class MspReportsImport implements ToModel, WithHeadingRow, WithChunkReading, Ski
             return null; // ← salta la fila
         }
 
+        // Persistir la categoría canónica que esperan los reportes y gráficas.
+        $tipoTicket = $tipoTicketNorm === 'incidente' ? 'Incidente' : 'Solicitud';
+
         // ─── Crear cliente si no existe ────────────────────────────────────────
         if ($customerName) {
             \App\Models\MspClient::firstOrCreate(
