@@ -12,7 +12,7 @@ use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 /**
  * Importador de reportes MSP desde archivos Excel (.xlsx / .xls).
  *
- * Procesa el Excel en lotes de 200 filas ({@see chunkSize()}) para evitar
+ * Procesa el Excel en lotes de 20000 filas ({@see chunkSize()}) para evitar
  * agotamiento de memoria en archivos grandes. Cada fila se sanitiza, valida
  * y persiste mediante upsert por `ticket_number`. Las filas vacías o de tipos
  * excluidos se omiten silenciosamente.
@@ -90,14 +90,14 @@ class MspReportsImport implements ToModel, WithHeadingRow, WithChunkReading, Ski
     /**
      * Número de filas procesadas por fragmento (chunk).
      *
-     * Se procesan 200 filas a la vez para mantener el uso de memoria bajo
-     * en archivos con miles de tickets.
+     * PhpSpreadsheet vuelve a abrir el libro para cada fragmento. Un tamaño
+     * mayor evita releer decenas de veces los archivos MSP de unas 10 000 filas.
      *
      * @return int
      */
     public function chunkSize(): int
     {
-        return 200;
+        return 20000;
     }
 
     /**

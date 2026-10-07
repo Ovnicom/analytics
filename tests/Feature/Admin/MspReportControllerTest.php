@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Jobs\RefreshMspBatchJob;
 use App\Models\MspClient;
 use App\Models\MspReport;
 use App\Models\MspUploadBatch;
@@ -10,6 +11,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -126,6 +128,22 @@ class MspReportControllerTest extends TestCase
         $this->actingAs($this->admin)
             ->post(route('admin.msp.sharepoint.import'), ['filename' => 'reporte.xlsx'])
             ->assertSessionHasErrors('periodo');
+    }
+
+    public function test_refresh_batch_despacha_job_en_segundo_plano(): void
+    {
+        Queue::fake();
+        $batch = $this->makeBatch();
+        $batch->update(['sharepoint_item_id' => 'sharepoint-item-123']);
+
+        $this->actingAs($this->admin)
+            ->post(route('admin.msp.batch.refresh', $batch))
+            ->assertSessionHas('success');
+
+        Queue::assertPushed(
+            RefreshMspBatchJob::class,
+            fn (RefreshMspBatchJob $job) => $job->batchId === $batch->id,
+        );
     }
 
     // =========================================================================

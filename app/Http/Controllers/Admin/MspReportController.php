@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Imports\MspReportsImport;
+use App\Jobs\RefreshMspBatchJob;
 use App\Models\MspReport;
 use App\Models\MspClient;
 use App\Models\MspUploadBatch;
@@ -977,32 +978,8 @@ Para cualquier otra consulta responde en español de forma clara y concisa.";
             return back()->with('error', '❌ Este batch no tiene referencia a SharePoint.');
         }
 
-        $sp = app(SharePointService::class);
+        RefreshMspBatchJob::dispatch($batch->id);
 
-        try {
-            $tempPath = $sp->downloadFileById($batch->sharepoint_item_id, $batch->filename);
-
-            // Eliminar registros anteriores del batch
-            MspReport::where('batch_id', $batch->id)->delete();
-
-            // Re-importar
-            Excel::import(new MspReportsImport($batch->periodo, $batch->id), $tempPath);
-
-            @unlink($tempPath);
-
-            $total  = MspReport::where('batch_id', $batch->id)->count();
-            $unicos = MspReport::where('batch_id', $batch->id)->distinct('customer_name')->count();
-
-            $batch->update([
-                'total_registros' => $total,
-                'clientes_unicos' => $unicos,
-            ]);
-
-            return back()->with('success', "✅ Actualizado: {$total} registros de {$unicos} clientes para {$batch->periodo}.");
-
-        } catch (\Throwable $e) {
-            Log::error('Error refrescando batch: ' . $e->getMessage());
-            return back()->with('error', '❌ Error: ' . $e->getMessage());
-        }
+        return back()->with('success', 'La actualización comenzó en segundo plano. Los totales se actualizarán al finalizar.');
     }
 }

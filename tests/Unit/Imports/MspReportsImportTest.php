@@ -308,9 +308,9 @@ class MspReportsImportTest extends TestCase
     // =========================================================================
 
     /** @test */
-    public function chunk_size_es_200(): void
+    public function chunk_size_es_20000(): void
     {
-        $this->assertEquals(200, $this->import->chunkSize());
+        $this->assertEquals(20000, $this->import->chunkSize());
     }
 
     // =========================================================================

@@ -55,7 +55,7 @@ class MspReport extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'ticket_number', 'customer_name', 'location_name', 'ticket_title',
+        'batch_id', 'ticket_number', 'customer_name', 'location_name', 'ticket_title',
         'ticket_type', 'fecha_creacion', 'fecha_cierre', 'tiempo_vida_ticket',
         'semana', 'mes_cierre', 'tipo_ticket', 'clasificacion_eventos',
         'causa_dano', 'solucion', 'detalle', 'tipo_cliente', 'ubicacion_hopsa',
