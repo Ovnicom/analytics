@@ -247,6 +247,33 @@ class MspReport extends Model
     }
 
     /**
+     * Normaliza un período al formato canónico almacenado: "Month YYYY" en inglés.
+     *
+     * Acepta meses en español o inglés y descarta sufijos como " v2" o " 1".
+     * Ejemplo: "Septiembre 2026 v2" → "September 2026". Si no reconoce el
+     * formato, devuelve el texto original sin cambios.
+     */
+    public static function normalizePeriodo(string $periodo): string
+    {
+        $meses = [
+            'enero' => 'January', 'febrero' => 'February', 'marzo' => 'March',
+            'abril' => 'April', 'mayo' => 'May', 'junio' => 'June',
+            'julio' => 'July', 'agosto' => 'August', 'septiembre' => 'September',
+            'setiembre' => 'September', 'octubre' => 'October',
+            'noviembre' => 'November', 'diciembre' => 'December',
+        ];
+
+        if (!preg_match('/^\s*(\p{L}+)\s+(\d{4})/u', $periodo, $m)) {
+            return $periodo;
+        }
+
+        $mes = mb_strtolower($m[1]);
+        $mes = $meses[$mes] ?? (in_array(ucfirst($mes), $meses, true) ? ucfirst($mes) : null);
+
+        return $mes ? "{$mes} {$m[2]}" : $periodo;
+    }
+
+    /**
      * Traduce el nombre de un período del inglés al español.
      *
      * Reemplaza los nombres de meses en inglés por sus equivalentes en español.

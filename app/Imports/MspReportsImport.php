@@ -181,8 +181,8 @@ class MspReportsImport implements ToModel, WithHeadingRow, WithChunkReading, Ski
 
         // ─── Período derivado de fecha de cierre ───────────────────────────────
         $periodo = $fechaCierre
-            ? ucfirst($fechaCierre->translatedFormat('F Y'))
-            : $this->periodo;
+            ? MspReport::normalizePeriodo($fechaCierre->translatedFormat('F Y'))
+            : MspReport::normalizePeriodo($this->periodo);
 
         // ─── Filtro de tipos válidos ───────────────────────────────────────────────
         // Solo Incidente y Solicitud pura (excluir Cancelación, Instalación, Inspección)
