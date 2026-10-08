@@ -181,10 +181,18 @@ class MspReport extends Model
             'alarma_vs_reportado' => $tickets->groupBy(fn($t) => $normalize($t->tipo_reporte))
                 ->map(fn($g) => $g->count()),
 
-            'alarma_vs_reportado_semana' => $tickets->groupBy('semana')
+            // Semana: usa la columna importada o la deriva de fecha_cierre/fecha_creacion si viene vacía.
+            // Tipo de reporte: coincidencia tolerante (mayúsculas, acentos, espacios, "Alarmas", etc.).
+            'alarma_vs_reportado_semana' => $tickets
+                ->groupBy(function ($t) {
+                    $sem = trim((string) $t->semana);
+                    if ($sem !== '' && !str_starts_with($sem, '=')) return $sem;
+                    $f = $t->fecha_cierre ?: $t->fecha_creacion;
+                    return $f ? 'S' . str_pad((string) $f->weekOfYear, 2, '0', STR_PAD_LEFT) : 'Sin semana';
+                })
                 ->map(fn($g) => [
-                    'Alarma'    => $g->filter(fn($t) => $normalize($t->tipo_reporte) === 'Alarma')->count(),
-                    'Reportado' => $g->filter(fn($t) => $normalize($t->tipo_reporte) === 'Reportado')->count(),
+                    'Alarma'    => $g->filter(fn($t) => str_contains(mb_strtolower((string) $t->tipo_reporte), 'alarm'))->count(),
+                    'Reportado' => $g->filter(fn($t) => str_contains(mb_strtolower((string) $t->tipo_reporte), 'report'))->count(),
                 ]),
 
             'detalle_tickets' => $tickets->map(fn($t) => [
