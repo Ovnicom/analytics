@@ -7,6 +7,7 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
+use Maatwebsite\Excel\Concerns\WithCalculatedFormulas;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 /**
@@ -56,8 +57,10 @@ use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
  * - WithHeadingRow: los encabezados de la primera fila se usan como llaves del array $row.
  * - WithChunkReading: lectura en fragmentos para optimizar memoria.
  * - SkipsEmptyRows: omite automáticamente las filas completamente vacías.
+ * - WithCalculatedFormulas: lee el valor calculado de las celdas con fórmula (ej. "Tipo de Reporte")
+ *   en lugar del texto de la fórmula.
  */
-class MspReportsImport implements ToModel, WithHeadingRow, WithChunkReading, SkipsEmptyRows
+class MspReportsImport implements ToModel, WithHeadingRow, WithChunkReading, SkipsEmptyRows, WithCalculatedFormulas
 {
     /**
      * Período de reporte del lote (ej. "Marzo 2025").
