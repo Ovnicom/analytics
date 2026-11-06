@@ -19,6 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->statefulApi();
 
+        // Cookie leída por JS para cerrar el modal al iniciar la descarga del ZIP (solo contiene un token aleatorio)
+        $middleware->encryptCookies(except: ['msp_zip_token']);
+
         // 2FA Obligatorio — se aplica a todas las rutas web autenticadas
         $middleware->appendToGroup('web', \App\Http\Middleware\TwoFactorMiddleware::class);
     })

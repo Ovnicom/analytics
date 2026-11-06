@@ -432,7 +432,17 @@ class MspReportController extends Controller
 
         $zip->close();
 
-        return response()->download($zipPath, $zipName)->deleteFileAfterSend(true);
+        $response = response()->download($zipPath, $zipName)->deleteFileAfterSend(true);
+
+        // Señal para que la vista cierre el modal "Generando PDFs..." (ver descarga_masiva.blade.php)
+        $token = (string) $request->input('download_token', '');
+        if (preg_match('/^\d{1,30}$/', $token)) {
+            $response->headers->setCookie(
+                cookie('msp_zip_token', $token, 2, '/', null, $request->isSecure(), false, false, 'lax')
+            );
+        }
+
+        return $response;
     }
 
     // =========================================================================
