@@ -69,9 +69,9 @@ class Meta2Controller extends Controller
         $path     = storage_path("app/public/{$filename}");
 
         Browsershot::html($html)
-            ->setChromePath(env('BROWSERSHOT_CHROME_PATH'))
-            ->setNodeBinary(env('BROWSERSHOT_NODE_PATH'))
-            ->setNpmBinary(env('BROWSERSHOT_NPM_PATH'))
+            ->setChromePath(config('services.browsershot.chrome_path'))
+            ->setNodeBinary(config('services.browsershot.node_path'))
+            ->setNpmBinary(config('services.browsershot.npm_path'))
             ->setNodeModulePath(base_path('node_modules'))
             ->newHeadlessMode()
             ->noSandbox()

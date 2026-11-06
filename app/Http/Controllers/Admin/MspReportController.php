@@ -391,27 +391,16 @@ class MspReportController extends Controller
             return back()->with('error', '❌ No se pudo crear el archivo ZIP.');
         }
 
-        $generados = 0;
-        $errores   = [];
+        $generados    = 0;
+        $errores      = [];
+        $primerError  = null;
+        $pdfService   = app(MspPdfService::class);
 
         foreach ($nombres as $customerName) {
             try {
-                $stats       = MspReport::statsForCustomer($customerName, $periodo);
-                $logoUrl     = $this->resolveLogoUrl($customerName, $periodo);
-                $ovnicomLogo = $this->getOvnicomLogo();
-
-                $html = view('admin.reports.msp.pdf_template', [
-                    'customer'    => $customerName,
-                    'stats'       => $stats,
-                    'periodo'     => $periodo,
-                    'logoUrl'     => $logoUrl,
-                    'ovnicomLogo' => $ovnicomLogo,
-                ])->render();
-
-                $filename = $this->buildPdfFilename($customerName, $periodo);
-                $pdfPath  = storage_path("app/public/msp_pdfs/{$filename}");
-
-                $this->generatePdf($html, $pdfPath);
+                // Mismo servicio que la descarga individual (sin waitUntilNetworkIdle)
+                $pdfPath  = $pdfService->generate($customerName, $periodo, forceRegenerate: true);
+                $filename = $pdfService->buildFilename($customerName, $periodo);
                 $zip->addFile($pdfPath, $filename);
 
                 try {
@@ -423,19 +412,25 @@ class MspReportController extends Controller
                 $generados++;
 
             } catch (\Throwable $e) {
-                Log::error("Error generando PDF para [{$customerName}]: " . $e->getMessage());
-                $errores[] = $customerName;
+                Log::error("Error generando PDF para [{$customerName}]: " . $e->getMessage(), [
+                    'periodo'   => $periodo,
+                    'exception' => $e,
+                ]);
+                $errores[]     = $customerName;
+                $primerError ??= \Illuminate\Support\Str::limit($e->getMessage(), 300);
             }
         }
 
-        $zip->close();
-
         if ($generados === 0) {
+            $zip->close();
             @unlink($zipPath);
             return back()->with('error',
                 '❌ No se pudo generar ningún PDF. Clientes fallidos: ' . implode(', ', $errores)
+                . ($primerError ? " — Detalle: {$primerError}" : '')
             );
         }
+
+        $zip->close();
 
         return response()->download($zipPath, $zipName)->deleteFileAfterSend(true);
     }
@@ -757,9 +752,9 @@ Para cualquier otra consulta responde en español de forma clara y concisa.";
         }
 
         Browsershot::html($html)
-            ->setChromePath(env('BROWSERSHOT_CHROME_PATH', '/usr/bin/chromium'))
-            ->setNodeBinary(env('BROWSERSHOT_NODE_PATH', '/usr/bin/node'))
-            ->setNpmBinary(env('BROWSERSHOT_NPM_PATH', '/usr/bin/npm'))
+            ->setChromePath(config('services.browsershot.chrome_path'))
+            ->setNodeBinary(config('services.browsershot.node_path'))
+            ->setNpmBinary(config('services.browsershot.npm_path'))
             ->noSandbox()
             ->addChromiumArguments([
                 'disable-dev-shm-usage',
