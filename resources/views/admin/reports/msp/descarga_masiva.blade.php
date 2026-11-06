@@ -40,6 +40,7 @@
     <form action="{{ route('admin.msp.pdf.masiva.zip') }}" method="POST" id="descargaForm">
         @csrf
         <input type="hidden" name="periodo" value="{{ $periodo }}">
+        <input type="hidden" name="download_token" id="downloadToken" value="">
 
         {{-- Barra de acciones --}}
         <div class="bg-white rounded-2xl border shadow-sm p-4 flex items-center justify-between gap-4">
@@ -148,11 +149,31 @@ function filtrarClientes(q) {
     });
 }
 
+// La respuesta es un archivo (no navega), así que el servidor devuelve la cookie
+// msp_zip_token con el token enviado; al detectarla se cierra el modal.
+// Si hay error, el servidor redirige y la página se recarga sola.
 document.getElementById('descargaForm')?.addEventListener('submit', function() {
-    document.getElementById('progressModal').classList.remove('hidden');
-    document.getElementById('downloadBtn').disabled = true;
-    document.getElementById('downloadBtn').innerHTML =
-        '<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
+    const btn      = document.getElementById('downloadBtn');
+    const modal    = document.getElementById('progressModal');
+    const original = btn.innerHTML;
+    const token    = Date.now().toString() + Math.floor(Math.random() * 1e6);
+
+    document.getElementById('downloadToken').value = token;
+    modal.classList.remove('hidden');
+    btn.disabled  = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
+
+    const started = Date.now();
+    const timer = setInterval(function() {
+        const done = document.cookie.split('; ').some(c => c === 'msp_zip_token=' + token);
+        if (done || Date.now() - started > 5 * 60 * 1000) {
+            clearInterval(timer);
+            document.cookie = 'msp_zip_token=; Max-Age=0; path=/';
+            modal.classList.add('hidden');
+            btn.innerHTML = original;
+            updateCount();
+        }
+    }, 1000);
 });
 </script>
 @endpush
