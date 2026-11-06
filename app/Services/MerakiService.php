@@ -399,6 +399,9 @@ class MerakiService
             $all = [];
 
             foreach ($organizations as $org) {
+                if ($this->isOrgUnlicensed($org['id'])) {
+                    continue;
+                }
                 try {
                     $devices   = $this->getDevices($org['id']);
                     $statusMap = collect($this->getDeviceStatuses($org['id']))->keyBy('serial');
@@ -412,12 +415,54 @@ class MerakiService
 
                     $all = array_merge($all, $devices);
                 } catch (Exception $e) {
-                    Log::warning("Meraki getAllDevices org [{$org['id']}]: " . $e->getMessage());
+                    if (!$this->markIfUnlicensed($org['id'], $e, $org['name'] ?? null)) {
+                        Log::warning("Meraki getAllDevices org [{$org['id']}]: " . $e->getMessage());
+                    }
                 }
             }
 
             return $all;
         });
+    }
+
+    /**
+     * Indica si la organización fue marcada como sin licencia Meraki (HTTP 403).
+     *
+     * La marca dura 24 h; al expirar se vuelve a consultar la org por si renovó.
+     *
+     * @param  string $orgId ID de la organización
+     * @return bool
+     */
+    public function isOrgUnlicensed(string $orgId): bool
+    {
+        return Cache::has("meraki_org_unlicensed_{$orgId}");
+    }
+
+    /**
+     * Si el error es el 403 "licensed Meraki devices only", marca la org como
+     * sin licencia (24 h) y lo registra una sola vez como info.
+     *
+     * Evita que el warm-cache (cada 30 min) genere miles de warnings por
+     * organizaciones sin licencia vigente.
+     *
+     * @param  string      $orgId   ID de la organización
+     * @param  \Throwable  $e       Excepción devuelta por la API
+     * @param  string|null $orgName Nombre de la org (solo para el log)
+     * @return bool                 true si el error era de org sin licencia
+     */
+    public function markIfUnlicensed(string $orgId, \Throwable $e, ?string $orgName = null): bool
+    {
+        $msg = $e->getMessage();
+        if (!str_contains($msg, 'HTTP 403') || !str_contains($msg, 'licensed Meraki devices only')) {
+            return false;
+        }
+
+        if (Cache::add("meraki_org_unlicensed_{$orgId}", true, now()->addHours(24))) {
+            Log::info("Meraki org [{$orgId}]" . ($orgName ? " ({$orgName})" : '')
+                . ' sin licencia vigente (HTTP 403). Se omite por 24 h.');
+        }
+
+        return true;
     }
 
     /**
@@ -451,11 +496,28 @@ class MerakiService
 
         foreach ($organizations as $org) {
             $orgId = $org['id'];
-            try { $this->getDevices($orgId); }        catch (Exception $e) { Log::warning("warmCache devices [{$orgId}]: " . $e->getMessage()); }
-            try { $this->getDeviceStatuses($orgId); } catch (Exception $e) { Log::warning("warmCache statuses [{$orgId}]: " . $e->getMessage()); }
-            try { $this->getNetworks($orgId); }       catch (Exception $e) { Log::warning("warmCache networks [{$orgId}]: " . $e->getMessage()); }
-            try { $this->getUplinkStatuses($orgId); } catch (Exception $e) { Log::warning("warmCache uplinks [{$orgId}]: " . $e->getMessage()); }
-            try { $this->getLicenses($orgId); }       catch (Exception $e) { Log::warning("warmCache licenses [{$orgId}]: " . $e->getMessage()); }
+            if ($this->isOrgUnlicensed($orgId)) {
+                continue;
+            }
+
+            $steps = [
+                'devices'  => fn () => $this->getDevices($orgId),
+                'statuses' => fn () => $this->getDeviceStatuses($orgId),
+                'networks' => fn () => $this->getNetworks($orgId),
+                'uplinks'  => fn () => $this->getUplinkStatuses($orgId),
+                'licenses' => fn () => $this->getLicenses($orgId),
+            ];
+
+            foreach ($steps as $step => $call) {
+                try {
+                    $call();
+                } catch (Exception $e) {
+                    if ($this->markIfUnlicensed($orgId, $e, $org['name'] ?? null)) {
+                        continue 2; // org sin licencia: no seguir consultándola
+                    }
+                    Log::warning("warmCache {$step} [{$orgId}]: " . $e->getMessage());
+                }
+            }
         }
 
         // Regenerar el caché global combinado
