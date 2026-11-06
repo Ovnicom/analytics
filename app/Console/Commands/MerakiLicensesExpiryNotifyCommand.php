@@ -44,7 +44,9 @@ class MerakiLicensesExpiryNotifyCommand extends Command
             try {
                 $licenses = $meraki->getLicenses($orgId);
             } catch (\Throwable $e) {
-                Log::warning("meraki:notify-licenses — getLicenses [{$orgId}]: " . $e->getMessage());
+                if (!$meraki->markIfUnlicensed($orgId, $e, $orgName)) {
+                    Log::warning("meraki:notify-licenses — getLicenses [{$orgId}]: " . $e->getMessage());
+                }
                 $licenses = [];
             }
 
@@ -56,7 +58,9 @@ class MerakiLicensesExpiryNotifyCommand extends Command
                     $deviceMap[$serial] = $device['name'] ?? $device['model'] ?? $serial ?: '—';
                 }
             } catch (\Throwable $e) {
-                Log::warning("meraki:notify-licenses — getDevices [{$orgId}]: " . $e->getMessage());
+                if (!$meraki->markIfUnlicensed($orgId, $e, $orgName)) {
+                    Log::warning("meraki:notify-licenses — getDevices [{$orgId}]: " . $e->getMessage());
+                }
             }
 
             $expiring = [];
