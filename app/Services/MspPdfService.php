@@ -110,9 +110,9 @@ class MspPdfService
         }
 
         Browsershot::html($html)
-            ->setChromePath(env('BROWSERSHOT_CHROME_PATH', '/usr/bin/chromium'))
-            ->setNodeBinary(env('BROWSERSHOT_NODE_PATH', '/usr/bin/node'))
-            ->setNpmBinary(env('BROWSERSHOT_NPM_PATH', '/usr/bin/npm'))
+            ->setChromePath(config('services.browsershot.chrome_path'))
+            ->setNodeBinary(config('services.browsershot.node_path'))
+            ->setNpmBinary(config('services.browsershot.npm_path'))
             ->noSandbox()
             ->addChromiumArguments([
                 'disable-dev-shm-usage',

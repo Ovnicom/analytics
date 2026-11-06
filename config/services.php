@@ -80,4 +80,12 @@ return [
         'api_key' => env('SENDGRID_API_KEY'),
         'from'    => env('SENDGRID_FROM', 'yalveo@ovni.com'),
     ],
+
+    // Rutas de Browsershot. Usar config('services.browsershot.*') en el código, nunca env():
+    // con `php artisan config:cache` env() devuelve null fuera de /config.
+    'browsershot' => [
+        'chrome_path' => env('BROWSERSHOT_CHROME_PATH', '/usr/bin/chromium'),
+        'node_path'   => env('BROWSERSHOT_NODE_PATH', '/usr/bin/node'),
+        'npm_path'    => env('BROWSERSHOT_NPM_PATH', '/usr/bin/npm'),
+    ],
 ];
